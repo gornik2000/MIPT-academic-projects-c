@@ -39,7 +39,7 @@
   #define iPrint(inf);
   #define stackTesting(tests);
 #else
-  #define iPrint(inf) printf (inf);
+  #define iPrint(inf) printf ((inf));
   #include "StackUnitTesting.cpp";
 #endif
 
@@ -48,6 +48,13 @@ int main()
   iPrint (" # This program includes functions for working with stack\n");
 
   stackTesting ();
+  stack_t myfirststack = {};
+
+  //stackCtor (&myfirststack);
+  //(&myfirststack)->capacity = -100;
+  //printf(" %d ",(&myfirststack)->capacity);
+  //stackIsOk (&myfirststack);
+  //stackPop (&myfirststack);
 
   return 1;
 }

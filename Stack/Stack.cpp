@@ -110,8 +110,8 @@ elem_t stackReturnSize     (stack_t *s);
   #define fcloseforlogs(a);
 #else
   #include "Dump.cpp"
-  #define fopenforlogs(a, b) fopen(a, b);
-  #define fcloseforlogs(a) fclose(a);
+  #define fopenforlogs(a, b) fopen((a), (b));
+  #define fcloseforlogs(a) fclose((a));
 #endif
 
 /// defines stackCtor as function stCtor with already given name of file
@@ -140,8 +140,8 @@ void stCtor (stack_t *s, const char *fileLogName)
   s->size = 0;
 
   s->capacity = MINSTACKCAPACITY;
-  s->data = (elem_t *)calloc (s->capacity, sizeof (*(s->data)));
-  s->logName = fopenforlogs (fileLogName, "a");
+  s->data = (data_t *)calloc (s->capacity, sizeof (*(s->data)));
+  s->logName = fopenforlogs (fileLogName, "w");
 
   stackIsOk (s);
 }

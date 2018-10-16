@@ -60,36 +60,23 @@ int stackTestCreateDestruct(int testsNumber)
   {
     stackCtor (&s);
     stackPush (&s, 10);
-
-    if ((&s)->data == NULL)
-    {
-      fprintf (fileStat, " | ERROR expected not data NULL pointer, got %d\n" \
-                       , (&s)->data);
-      errors += 1;
-    }
+    if ((&s)->data == NULL)     {
+      fprintf (fileStat, " | ERROR expected data not NULL pointer, got %d\n", \
+      (&s)->data); errors += 1; }
 
     stackDtor (&s);
 
-    if ((&s)->data != NULL)
-    {
-      fprintf (fileStat, " | ERROR expected NULL data pointer, got %d\n" \
-                       , (&s)->data);
-      errors += 1;
-    }
+    if ((&s)->data != NULL)     {
+      fprintf (fileStat, " | ERROR expected NULL data pointer, got %d\n", \
+      (&s)->data); errors += 1; }
 
-    if ((&s)->size != 0)
-    {
-      fprintf (fileStat, " | ERROR expected 0 size, got %d\n" \
-                       , (&s)->data);
-      errors += 1;
-    }
+    if ((&s)->size != 0)        {
+      fprintf (fileStat, " | ERROR expected 0 size, got %d\n", \
+      (&s)->data); errors += 1; }
 
-    if ((&s)->capacity != 0)
-    {
-      fprintf (fileStat, " | ERROR expected 0 capacity, got %d\n" \
-                       , (&s)->data);
-      errors += 1;
-    }
+    if ((&s)->capacity != 0)    {
+      fprintf (fileStat, " | ERROR expected 0 capacity, got %d\n", \
+      (&s)->data); errors += 1; }
   }
 
   fprintf (fileStat, " # %d/%d ERRORS occur in Create/Destruct testing\n\n", \
@@ -117,20 +104,17 @@ int stackTestPushPop (int testsNumber)
   stackCtor (&s);
   for (elem_t startingNumber = 0; startingNumber < testsNumber; startingNumber ++)
   {
+    /* giving elements into stack */
     for (elem_t i = startingNumber; i < testsNumber; i ++)
-    {
-      stackPush (&s, i);
-    }
+         stackPush (&s, i);
 
+    /* testing ifwe taken the same elements as give */
     elem_t poped = 0;
     for (elem_t i = testsNumber - 1; i > startingNumber; i --)
     {
-      if (poped = stackPop (&s) != i)
-      {
-        fprintf (fileStat, " | ERROR expected element %d, got %d\n" \
-                         , i, poped);
-        errors += 1;
-      }
+      if (poped = stackPop (&s) != i) {
+        fprintf (fileStat, " | ERROR expected element %d, got %d\n", \
+        i, poped); errors += 1;       }
     }
   }
 
@@ -161,31 +145,24 @@ int stackTestChangeCapacity (int testsNumber)
   stackCtor (&s);
 
   elem_t predictedCapacity = MINSTACKCAPACITY * 2;
+
   for (elem_t i = 0; i < testsNumber - 1; \
-                  i ++, predictedCapacity *= increaseCapacityCoefficient)
+       i ++, predictedCapacity *= increaseCapacityCoefficient)
   {
     stackChangeCapacity (&s, increaseCapacityCoefficient);
-    if ((&s)->capacity != predictedCapacity)
-    {
-      fprintf (fileStat, " | ERROR expected %d capacity, got %d\n" \
-                       , predictedCapacity, (&s)->capacity);
-      errors += 1;
-    }
-  }
 
+    if ((&s)->capacity != predictedCapacity)           {
+      fprintf (fileStat, " | ERROR expected %d capacity, got %d\n", \
+      predictedCapacity, (&s)->capacity); errors += 1; }
+  }
   for (elem_t i = 0; i < testsNumber * 2; i++)
-  {
     stackChangeCapacity (&s, decreaseCapacityCoefficient);
-  }
 
-  if ((&s)->capacity != 1)
-  {
-    fprintf (fileStat, " | ERROR expected 1 capacity, got %d\n" \
-                     , (&s)->capacity);
-    errors += 1;
-  }
+  if ((&s)->capacity != 1)        {
+    fprintf (fileStat, " | ERROR expected 1 capacity, got %d\n", \
+    (&s)->capacity); errors += 1; }
 
   fprintf (fileStat, " # %d/%d ERRORS occur in Change capacity testing\n\n", \
-             errors, maxErrors);
+           errors, maxErrors);
   return (errors);
 }
