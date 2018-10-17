@@ -18,13 +18,20 @@
 //  \warning Stack should be constructed
 */
 
-void stCtor (stack_t *s)
+void stCtor (stack_t *s, const char *fileLogName)
 {
   assert (s);
+
+  s->canaryOne = CANARY;
 
   s->size = 0;
   s->capacity = MINSTACKCAPACITY;
   s->data = (data_t *)calloc (s->capacity, sizeof (*(s->data)));
+  s->logFile = fopenforlogs (fileLogName, "a");
+
+  s->canaryTwo = CANARY;
+
+  stackIsOk (s);
 }
 
 /*!
@@ -36,8 +43,11 @@ void stCtor (stack_t *s)
 //  \param s Pointer to stack that should be destroyed
 */
 
-void stDtor (stack_t *s)
+void stackDtor (stack_t *s)
 {
+  const char *error = stackIsOk (s);
+  if (error == 0)
+  {
     /* delete information in stack */
     memset (s->data, POISON, (s->size) * sizeof (*(s->data)));
 
@@ -46,8 +56,12 @@ void stDtor (stack_t *s)
     s->size = 0;
     s->capacity = 0;
 
+    fcloseforlogs (s->logFile);
+    s->logFile = NULL;
+
     s->data = NULL;
     s = NULL;
+  }
 }
 
 /*!
@@ -59,19 +73,24 @@ void stDtor (stack_t *s)
 //  \param element Element inputted in stack
 */
 
-void stPush (stack_t *s, elem_t element)
+void stackPush (stack_t *s, elem_t element)
 {
-  /* if stack not full */
-  if (s->capacity >= s->size + 1)
+  const char *error = stackIsOk (s);
+  if (error == 0)
   {
-    s->size ++;
-    (s->data)[s->size - 1] = element;
-  }
-  else
-  {
-    stackChangeCapacity (s, increaseCapacityCoefficient);
-    s->size ++;
-    (s->data)[s->size - 1] = element;
+    /* if stack not full */
+    if (s->capacity >= s->size + 1)
+    {
+      s->size ++;
+      (s->data)[s->size - 1] = element;
+    }
+    else
+    {
+      stackChangeCapacity (s, increaseCapacityCoefficient);
+      s->size ++;
+      (s->data)[s->size - 1] = element;
+    }
+    stackIsOk (s);
   }
 }
 
@@ -87,18 +106,27 @@ void stPush (stack_t *s, elem_t element)
 
 elem_t stackPop (stack_t *s)
 {
-  s->size --;
+  (s->size) --;
 
-  elem_t element = (s->data)[s->size];
-  (s->data)[s->size] = POISON;
-
-  if (((increaseCapacityCoefficient + 1) * s->size < s->capacity) \
-                                                && (s->size > 1))
+  const char *error = stackIsOk (s);
+  if (error == 0)
   {
-    stackChangeCapacity (s, decreaseCapacityCoefficient);
+    elem_t element = (s->data)[s->size];
+    (s->data)[s->size] = POISON;
+
+    if (((increaseCapacityCoefficient + 1) * s->size < s->capacity) \
+                                                  && (s->size > 1))
+    {
+      stackChangeCapacity (s, decreaseCapacityCoefficient);
+    }
+
+    stackIsOk (s);
+
+    return (element);
   }
 
-  return (element);
+  (s->size) ++;
+  return 0;
 }
 
 /*!
@@ -110,12 +138,18 @@ elem_t stackPop (stack_t *s)
 //  \param changeValue In what times capacity is changed
 */
 
-void stChangeCapacity (stack_t *s, float changeValue)
+void stackChangeCapacity (stack_t *s, float changeValue)
 {
-  if ((changeValue > 1) || (s->capacity >= 1 / changeValue))
+  const char *error = stackIsOk (s);
+  if (error == 0)
   {
-    s->capacity = int (s->capacity * changeValue);
-    s->data = (data_t *)realloc (s->data, s->capacity * sizeof (*(s->data)));
+    if ((changeValue > 1) || (s->capacity >= 1 / changeValue))
+    {
+      s->capacity = int (s->capacity * changeValue);
+      s->data = (data_t *)realloc (s->data, s->capacity * sizeof (*(s->data)));
+
+      stackIsOk (s);
+    }
   }
 }
 
@@ -130,9 +164,15 @@ void stChangeCapacity (stack_t *s, float changeValue)
 //------------------------------------------------------------------------------
 */
 
-elem_t stReturnSize (stack_t *s)
+elem_t stackReturnSize (stack_t *s)
 {
-  return (s->size);
+  const char *error = stackIsOk (s);
+  if (error == 0)
+  {
+    return (s->size);
+  }
+
+  return (-1);
 }
 
 /*!
@@ -144,9 +184,15 @@ elem_t stReturnSize (stack_t *s)
 //  \return Stack capacity
 */
 
-elem_t stReturnCapacity (stack_t *s)
+elem_t stackReturnCapacity (stack_t *s)
 {
-  return (s->capacity);
+  const char *error = stackIsOk (s);
+  if (error == 0)
+  {
+    return (s->capacity);
+  }
+
+  return (-1);
 }
 
 /*!
@@ -161,16 +207,21 @@ elem_t stReturnCapacity (stack_t *s)
 
 void stackFPrintData (stack_t *s, FILE *file)
 {
-  assert (file);
-
-  fprintf (file, " # Stack data:\n | ");
-
-  for (elem_t i = 0; i < s->size; i++)
+  if (file == NULL)
   {
-    fprintf (file, DATA_ST_TYPE" _ ", (s->data)[i]);
+    file = s->logFile;
   }
 
-  fprintf (file, ";\n\n");
+  if (file != NULL)
+  {
+    fprintf (file, " # Stack data:\n | ");
 
+    for (elem_t i = 0; i < s->size; i++)
+    {
+      fprintf (file, DATA_ST_TYPE" _ ", (s->data)[i]);
+    }
+
+    fprintf (file, ";\n\n");
+  }
 }
 

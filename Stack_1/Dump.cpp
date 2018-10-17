@@ -20,7 +20,7 @@ void errorDecoder (FILE *file, const char *error, int line = 0, \
                    const char *funcName = "not given", \
                    const char *fileName = "not given");
 
-void stackFPrintInfo (stack_t *s, FILE *file = ST_LOG_FILE);
+void stackFPrintInfo       (stack_t *s, FILE *file = NULL);
 
 /// makes a stackIsOk function as stIsOk in witch automatically given \
     system information
@@ -48,7 +48,7 @@ const char *stIsOk (stack_t *s, int line, \
   /* stack pointer is NULL */
   if (s == NULL)
   {
-    errorDecoder (ST_LOG_FILE, ERR_ST_NULL, line, funcName, fileName);
+    errorDecoder (s->logFile, ERR_ST_NULL, line, funcName, fileName);
     stackFPrintInfo(s);
     stackFPrintData(s);
     return ERR_ST_NULL;
@@ -57,7 +57,7 @@ const char *stIsOk (stack_t *s, int line, \
   /* stack canary is corrupted */
   if ((s->canaryOne != CANARY) || (s->canaryTwo != CANARY))
   {
-    errorDecoder (ST_LOG_FILE, ERR_ST_CANARY, line, funcName, fileName);
+    errorDecoder (s->logFile, ERR_ST_CANARY, line, funcName, fileName);
     stackFPrintInfo(s);
     stackFPrintData(s);
     return ERR_ST_CANARY;
@@ -66,7 +66,7 @@ const char *stIsOk (stack_t *s, int line, \
   /* stack capacity < 0 or too big */
   if (((s->capacity) < 0) || ((s->capacity) > 1000000000))
   {
-    errorDecoder (ST_LOG_FILE, ERR_ST_CAPACITY, line, funcName, fileName);
+    errorDecoder (s->logFile, ERR_ST_CAPACITY, line, funcName, fileName);
     stackFPrintInfo(s);
     stackFPrintData(s);
     return ERR_ST_CAPACITY;
@@ -75,7 +75,7 @@ const char *stIsOk (stack_t *s, int line, \
   /* stack size < 0 or too big */
   if ((s->size < 0) || ((s->size) > 1000000000))
   {
-    errorDecoder (ST_LOG_FILE, ERR_ST_SIZE, line, funcName, fileName);
+    errorDecoder (s->logFile, ERR_ST_SIZE, line, funcName, fileName);
     stackFPrintInfo(s);
     stackFPrintData(s);
     return ERR_ST_SIZE;
@@ -84,7 +84,7 @@ const char *stIsOk (stack_t *s, int line, \
   /* pointer to data is NULL, data does not exist */
   if (s->data == NULL)
   {
-    errorDecoder (ST_LOG_FILE, ERR_ST_DATA, line, funcName, fileName);
+    errorDecoder (s->logFile, ERR_ST_DATA, line, funcName, fileName);
     stackFPrintInfo(s);
     stackFPrintData(s);
     return ERR_ST_DATA;
@@ -93,7 +93,7 @@ const char *stIsOk (stack_t *s, int line, \
   /* stack capability is smaller than stack size */
   if (s->capacity  < s->size)
   {
-    errorDecoder (ST_LOG_FILE, ERR_ST_MEMORY, line, funcName, fileName);
+    errorDecoder (s->logFile, ERR_ST_MEMORY, line, funcName, fileName);
     stackFPrintInfo(s);
     stackFPrintData(s);
     return ERR_ST_MEMORY;
@@ -142,11 +142,18 @@ void errorDecoder (FILE *file, const char *error, int line, \
 
 void stackFPrintInfo (stack_t *s, FILE *file)
 {
-  assert (file);
+  if (file == NULL)
+  {
+    file = s->logFile;
+  }
 
-  fprintf(file, " # Stack information:\n" \
-                " | Data pointer: %p\n" \
-                " | Size: %d\n" \
-                " | Capacity: %d\n\n",
-                s->data, s->size, s->capacity);
+  if (file != NULL)
+  {
+    fprintf(file, " # Stack information:\n" \
+                  " | Data pointer: %p\n" \
+                  " | Size: %d\n" \
+                  " | Capacity: %d\n" \
+                  " | LogFile pointer: %p\n\n",
+                  s->data, s->size, s->capacity, s->logFile);
+  }
 }

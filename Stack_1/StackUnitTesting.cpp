@@ -4,7 +4,13 @@
 //  Contains function for testing stack
 */
 
-FILE *fileStat = fopen("Testing_errors.txt", "w");
+/*!
+//  \var const char *FILESTATISTICSNAME
+//
+//  Name of file where testing statistics should be printed
+*/
+const char *FILESTATISTICSNAME = "Testing_errors.txt";
+FILE *fileStat = fopen(FILESTATISTICSNAME, "w");
 
 void stackTesting ();
 

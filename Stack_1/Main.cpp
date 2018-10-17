@@ -41,5 +41,6 @@ int main()
   stackCtor (&myfirststack);
   (&myfirststack)->capacity = -100;
   stackDtor (&myfirststack);
+
   return 1;
 }

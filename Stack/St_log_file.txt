@@ -1,0 +1,11 @@
+ # Error 'Invalid stack capacity' occured in: 
+ | file C:\Users\Lenovo\Documents\GitHub\safe-morning\Stack\Main.cpp
+ | function main
+ | line 43
+ | date 23:49:36 Oct 17 2018
+
+ # Stack information:
+ | Data pointer: 004A04A0
+ | Size: 0
+ | Capacity: -100
+

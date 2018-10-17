@@ -1,0 +1,15 @@
+ # Error 'Invalid stack capacity' occured in: 
+ | file C:\Users\Lenovo\Documents\GitHub\safe-morning\Stack_1\Stack.cpp
+ | function stackDtor
+ | line 48
+ | date 21:44:39 Oct 17 2018
+
+ # Stack information:
+ | Data pointer: 00340D98
+ | Size: 0
+ | Capacity: -100
+ | LogFile pointer: 75129C68
+
+ # Stack data:
+ | ;
+
