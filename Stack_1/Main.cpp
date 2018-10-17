@@ -16,7 +16,7 @@
 /// RELEASE defines version of the project \
     if defined erases supporting debug functions \
     if not defined many supporting functions will be able to work
-//#define RELEASE
+#define RELEASE
 
 #include "Stack.cpp"
 

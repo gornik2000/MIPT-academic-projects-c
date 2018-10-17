@@ -17,6 +17,8 @@
 
 //------------------------------------------------------------------------------
 
+FILE *STACK_LOGS = fopen ("Stack_logs.txt", "w");
+
 /*!
 //  \typedef size_t data_t;
 //
@@ -53,7 +55,6 @@ struct myStack
   data_t *data;
   elem_t size;
   elem_t capacity;
-  FILE  *logFile;
 
   data_t canaryTwo;
 };
@@ -99,7 +100,7 @@ const data_t CANARY = 5553535;
 
 //------------------------------------------------------------------------------
 
-void stCtor (stack_t *s, char *fileLogName = "stackLogs.txt");
+void stackCtor (stack_t *s);
 void stackDtor (stack_t *s);
 
 void  stackPush (stack_t *s, elem_t number);
@@ -113,24 +114,13 @@ void stackFPrintData       (stack_t *s, FILE *file = 0);
 
 //------------------------------------------------------------------------------
 
-#define stackCtor(s) \
-{ \
-  const char *name = "log" #s ".txt"; \
-  stCtor(s, name); \
-}
-
-
 /// RELEASE defines version of the project \
     if defined erases supporting debug functions \
     if not defined many supporting functions will be able to work
 #if defined RELEASE
   #define errorDecoder(a, b, c, d, e);
   #define stackIsOk(a) 0;
-  #define fopenforlogs(a, b) NULL;
-  #define fcloseforlogs(a);
 #else
   #include "Dump.cpp"
-  #define fopenforlogs(a, b) fopen(a, b);
-  #define fcloseforlogs(a) fclose(a);
 #endif
 

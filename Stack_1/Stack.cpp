@@ -18,7 +18,7 @@
 //  \warning Stack should be constructed
 */
 
-void stCtor (stack_t *s, const char *fileLogName)
+void stackCtor (stack_t *s)
 {
   assert (s);
 
@@ -27,7 +27,6 @@ void stCtor (stack_t *s, const char *fileLogName)
   s->size = 0;
   s->capacity = MINSTACKCAPACITY;
   s->data = (data_t *)calloc (s->capacity, sizeof (*(s->data)));
-  s->logFile = fopenforlogs (fileLogName, "a");
 
   s->canaryTwo = CANARY;
 
@@ -55,9 +54,6 @@ void stackDtor (stack_t *s)
 
     s->size = 0;
     s->capacity = 0;
-
-    fcloseforlogs (s->logFile);
-    s->logFile = NULL;
 
     s->data = NULL;
     s = NULL;
@@ -209,7 +205,7 @@ void stackFPrintData (stack_t *s, FILE *file)
 {
   if (file == NULL)
   {
-    file = s->logFile;
+    file = STACK_LOGS;
   }
 
   if (file != NULL)
