@@ -17,7 +17,7 @@
 
 //------------------------------------------------------------------------------
 
-FILE *STACK_LOGS = fopen ("Stack_logs.txt", "w");
+FILE *ST_LOG_FILE = fopen("St_log_file.txt", "w");
 
 /*!
 //  \typedef size_t data_t;
@@ -100,27 +100,117 @@ const data_t CANARY = 5553535;
 
 //------------------------------------------------------------------------------
 
-void stackCtor (stack_t *s);
-void stackDtor (stack_t *s);
+void stCtor (stack_t *s);
+void stDtor (stack_t *s);
 
-void  stackPush (stack_t *s, elem_t number);
-elem_t stackPop (stack_t *s);
+void  stPush    (stack_t *s, elem_t number);
+elem_t stPop (stack_t *s);
+elem_t stSafePop (stack_t *s);
 
-void stackChangeCapacity (stack_t *s, float changeValue);
+void stChangeCapacity (stack_t *s, float changeValue);
 
-elem_t stackReturnCapacity (stack_t *s);
-elem_t stackReturnSize     (stack_t *s);
-void stackFPrintData       (stack_t *s, FILE *file = 0);
+elem_t stReturnCapacity (stack_t *s);
+elem_t stReturnSize     (stack_t *s);
+void stackFPrintData    (stack_t *s, FILE *file = ST_LOG_FILE);
 
 //------------------------------------------------------------------------------
+
+#ifdef RELEASE
+  #define stackCtor(s) \
+    stCtor((s));
+
+  #define stackDtor(s) \
+    stDtor((s));
+
+  #define stackPush(s, element) \
+    stPush((s), (element));
+
+  #define stackPop(s) \
+    stPop((s));
+
+  #define stackReturnCapacity(s) \
+    stReturnCapacity((s));
+
+  #define stackReturnSize(s) \
+    stReturnSize((s));
+
+  #define stackChangeCapacity(s, value) \
+    stChangeCapacity((s), (value));
+#else
+  #include "Dump.cpp"
+
+  #define stackCtor(s) \
+  { \
+    stCtor((s)); \
+    (s)->canaryOne = CANARY; \
+    (s)->canaryTwo = CANARY; \
+    stackIsOk ((s)); \
+  }
+
+  #define stackDtor(s) \
+  { \
+    const char *error = stackIsOk ((s)); \
+    if (error == 0) \
+    { \
+      stDtor ((s)); \
+    } \
+  }
+
+  #define stackPush(s, element) \
+  { \
+    const char *error = stackIsOk ((s)); \
+    if (error == 0) \
+    { \
+      stPush((s), (element)); \
+      stackIsOk ((s)); \
+    } \
+  }
+
+  #define stackPop(s) \
+  { \
+    stSafePop((s)) \
+  }
+
+  #define stackChangeCapacity(s, value)\
+  { \
+    const char *error = stackIsOk ((s)); \
+    if (error == 0) \
+    { \
+      stChangeCapacity((s), (value)); \
+      stackIsOk ((s)); \
+    } \
+  }
+
+  #define stackReturnCapacity(s)\
+  { \
+    const char *error = stackIsOk ((s)); \
+    if (error == 0) \
+    { \
+      stReturnCapacity((s)); \
+    } \
+  }
+
+  #define stackReturnSize(s) \
+  { \
+    const char *error = stackIsOk ((s)); \
+    if (error == 0) \
+    { \
+      stReturnSize((s)); \
+    } \
+  }
+#endif
+
 
 /// RELEASE defines version of the project \
     if defined erases supporting debug functions \
     if not defined many supporting functions will be able to work
 #if defined RELEASE
-  #define errorDecoder(a, b, c, d, e);
-  #define stackIsOk(a) 0;
+  //#define errorDecoder(a, b, c, d, e);
+  //#define stackIsOk(a) 0;
+  //#define fopenforlogs(a, b) NULL;
+  //#define fcloseforlogs(a);
 #else
-  #include "Dump.cpp"
+  //#define fopenforlogs(a, b) fopen(a, b);
+  //#define fcloseforlogs(a) fclose(a);
 #endif
 

@@ -1,0 +1,11 @@
+PUSH ax
+PUSH 5
+ADD
+:1
+PUSH 10
+:3
+:25
+:73
+MUL
+OUT
+END

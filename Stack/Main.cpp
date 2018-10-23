@@ -25,7 +25,6 @@
   #define stackTesting(tests);
 #else
   #define iPrint(inf) printf ((inf));
-  #include "StackUnitTesting.cpp";
 #endif
 
 
@@ -41,5 +40,6 @@ int main()
   stackCtor (&myfirststack);
   (&myfirststack)->capacity = -100;
   stackDtor (&myfirststack);
+
   return 1;
 }

@@ -16,7 +16,7 @@
 /// RELEASE defines version of the project \
     if defined erases supporting debug functions \
     if not defined many supporting functions will be able to work
-#define RELEASE
+//#define RELEASE
 
 #include "Stack.cpp"
 
@@ -39,8 +39,10 @@ int main()
   stack_t myfirststack = {};
 
   stackCtor (&myfirststack);
+  stackPush (&myfirststack, 150);
+  stackPush (&myfirststack, 250);
+  stackPush (&myfirststack, 350);
   (&myfirststack)->capacity = -100;
   stackDtor (&myfirststack);
-
   return 1;
 }
