@@ -117,6 +117,7 @@ char getCommand(const char *s)
   /* command was not identified */
   return 0;
 }
+
 /* give information about current push/pop command */
 int pushPopToByteCode (char *par, int *type, int *value)
 {
@@ -124,17 +125,48 @@ int pushPopToByteCode (char *par, int *type, int *value)
   assert (type != NULL);
   assert (value != NULL);
 
-  printf("push-pop %s\n", par);
+  //printf("push-pop %s\n", par);
   if (isdigit(par[0]))
   {
     *type = VAL;
-    printf("type %d\n", *type);
+    //printf("type %d\n", *type);
     *value = atoi (par);
     return 0;
   }
-  else if (par[0] == '[')
+
+  if (par[0] == '[')
   {
-   ;
+    *type = RAM;
+    //printf ("parameter %s\n", par);
+    par ++;
+    //printf ("parameter %s\n", par);
+    //par[strlen(par)] = '\0';
+    *value = atoi(par);
+    return 0;
+  }
+
+  if (!strcmp (par, "AX"))
+  {
+    *type = REG;
+    *value = AX;
+  }
+
+  if (!strcmp (par, "BX"))
+  {
+    *type = REG;
+    *value = BX;
+  }
+
+  if (!strcmp (par, "CX"))
+  {
+    *type = REG;
+    *value = CX;
+  }
+
+  if (!strcmp (par, "DX"))
+  {
+    *type = REG;
+    *value = DX;
   }
 }
 
@@ -147,28 +179,36 @@ int firstCompilation (FILE *file, int *flags)
   /* current coursor position, REMAKE it */
   int cmdNum = 0;
   int strCmdNum = 0;
-  char *command = (char *)calloc (ASM_MAX_FLAG_SIZE + 1, sizeof (*command));
+
+  char *command = (char *)calloc (ASM_MAX_CMD_SIZE + 1, sizeof (*command));
+  char par[ASM_MAX_PAR_SIZE] = "";
   char cmdStr[ASM_MAX_CMD_SIZE] = "";
 
-  while (fgets(cmdStr, ASM_MAX_CMD_SIZE, file) != NULL)
+  while (fgets (cmdStr, ASM_MAX_CMD_SIZE, file) != NULL)
   {
-    strCmdNum = sscanf (cmdStr, "%s%s%s", command);
+    strCmdNum = sscanf (cmdStr, "%s%s", command, par);
+    //printf(" 0 ");
+    //printf (" = %d = \n", strCmdNum);
+    //printf(" 1 ");
+    //printf (" = %s = \n", command);
     if (*command == ':')
     {
       //printf("\n%s\n", command);
-      flags[atoi(command + 1)] = cmdNum + 1;
+      flags[atoi(command + 1)] = cmdNum;
       continue;
     }
-
+    //printf(" 2 ");
+    //printf (" = %s = \n", command);
     if (!strcmp (command, "PUSH") || !strcmp (command, "POP"))
     {
       cmdNum += 3;
+      //printf(" 2 ");
       continue;
     }
-
+    //printf(" 3 ");
+    //printf (" = %s = \n", command);
     cmdNum += strCmdNum;
-
-    printf("->%d\n", cmdNum);
+    //printf("->%d\n", cmdNum);
   }
 
   free (command);
@@ -187,11 +227,13 @@ int *compilation (const char *fileName)
   int labels[ASM_FLAGS_NUMBER] = {0};
   /* number of commands in file, creates array of labels*/
   int cmdCount = firstCompilation (cmdFile, labels);
-  for (int i = 0; i < ASM_FLAGS_NUMBER; i++) printf ("pos %d command %d\n", i, labels[i]);
+  //for (int i = 0; i < ASM_FLAGS_NUMBER; i++) printf ("pos %d command %d\n", i, labels[i]);
 
-  int *byteCode = (int *)calloc(cmdCount, sizeof (*byteCode));
+  int *byteCode = (int *)calloc(cmdCount + 1, sizeof (*byteCode));
 
   char cmdStr[ASM_MAX_CMD_SIZE] = "";
+  char command[ASM_MAX_CMD_SIZE] = "";
+
   //char par1[ASM_MAX_PAR_SIZE] = "";
   char *par1 = (char *)calloc (ASM_MAX_PAR_SIZE, sizeof (*par1));
 
@@ -210,10 +252,9 @@ int *compilation (const char *fileName)
     /* push pop commands */
     if (cmdNumber == PUSH || cmdNumber == POP)
     {
-      sscanf (cmdStr, "%s%s", cmdStr, par1);
+      sscanf (cmdStr, "%s%s", command, par1);
 
-      /* тупой баг нет пара 1 */
-      printf("push-pop %c\n", par1[0]);
+      //printf("push-pop %s\n", par1);
       int type = 0;
       int value = 0;
 
@@ -232,28 +273,33 @@ int *compilation (const char *fileName)
     if (cmdNumber == JMP || cmdNumber == JA  ||
         cmdNumber == JB  || cmdNumber == JAE   )
     {
-      sscanf (cmdStr, "%s%s", cmdStr, par1);
+      sscanf (cmdStr, "%s%s", command, par1);
+      //printf ("= %s =\n", par1);
 
       byteCode[ip] = cmdNumber;
-      ip ++;
 
       par1 ++;
+      //printf ("= %s =\n", par1);
+      //printf ("= %d =\n", atoi(par1));
+      //printf ("= %d =\n", labels[atoi(par1)]);
 
-      byteCode[ip] = labels[atoi(par1)];
-      ip++;
+      byteCode[ip + 1] = labels[atoi(par1)];
+      //printf ("= %d =\n", byteCode[ip + 1]);
+      ip += 2;
 
       par1 --;
+      //printf ("= %s =\n", par1);
       continue;
     }
-
+    //printf(" 2 ");
     /* in other situations */
     byteCode[ip] = cmdNumber;
     ip ++;
-    printf ("- command number %d\n", cmdNumber);
+    //printf ("- command number %d\n", cmdNumber);
   }
   //printf ("%d", cmdCount);
   free (par1);
-  for (int i = 0; i<cmdCount; i++) printf ("command in code%d \n", byteCode[i]);
+  for (int i = 0; i<=cmdCount; i++) printf ("command in code %d \n", byteCode[i]);
   return 0;
 }
 
