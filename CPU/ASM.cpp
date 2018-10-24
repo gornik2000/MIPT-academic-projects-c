@@ -27,8 +27,7 @@
 #include <ctype.h>
 
 /* asm parameters */
-const int ASM_MAX_CMD_SIZE  = 20;
-const int ASM_MAX_CMD_COUNT = 200;
+const int ASM_MAX_CMD_SIZE  = 50;
 const int ASM_FLAGS_NUMBER  = 100;
 const int ASM_MAX_FLAG_SIZE = 3;
 const int ASM_MAX_PAR_SIZE  = 10;
@@ -181,7 +180,8 @@ int firstCompilation (FILE *file, int *flags)
   int strCmdNum = 0;
 
   char *command = (char *)calloc (ASM_MAX_CMD_SIZE + 1, sizeof (*command));
-  char par[ASM_MAX_PAR_SIZE] = "";
+
+  char par[ASM_MAX_PAR_SIZE]    = "";
   char cmdStr[ASM_MAX_CMD_SIZE] = "";
 
   while (fgets (cmdStr, ASM_MAX_CMD_SIZE, file) != NULL)
@@ -190,7 +190,10 @@ int firstCompilation (FILE *file, int *flags)
     //printf(" 0 ");
     //printf (" = %d = \n", strCmdNum);
     //printf(" 1 ");
-    //printf (" = %s = \n", command);
+    //printf (" = command %s = \n", command);
+    if (strCmdNum ==  0) continue;
+    if (*command == '/') continue;
+
     if (*command == ':')
     {
       //printf("\n%s\n", command);
@@ -208,7 +211,7 @@ int firstCompilation (FILE *file, int *flags)
     //printf(" 3 ");
     //printf (" = %s = \n", command);
     cmdNum += strCmdNum;
-    //printf("->%d\n", cmdNum);
+    printf("->%d\n", cmdNum);
   }
 
   free (command);
@@ -216,7 +219,7 @@ int firstCompilation (FILE *file, int *flags)
   return cmdNum;
 }
 
-int *compilation (const char *fileName)
+int compilation (const char *fileName)
 {
   assert (fileName != NULL);
 
@@ -248,7 +251,7 @@ int *compilation (const char *fileName)
 
     /* commands anallizer */
     if (cmdNumber == 0) continue;
-
+    //if (cmdNumber == END) return 0;
     /* push pop commands */
     if (cmdNumber == PUSH || cmdNumber == POP)
     {
@@ -298,8 +301,15 @@ int *compilation (const char *fileName)
     //printf ("- command number %d\n", cmdNumber);
   }
   //printf ("%d", cmdCount);
+  fclose (cmdFile);
+
+  FILE *fileCode = fopen ("Byte_Code.txt", "wb");
+  assert (fileCode);
+  fwrite (byteCode, cmdCount, sizeof(int), fileCode);
+
+  fclose(fileCode);
   free (par1);
-  for (int i = 0; i<=cmdCount; i++) printf ("command in code %d \n", byteCode[i]);
+  for (int i = 0; i < cmdCount; i++) printf ("command in code %d \n", byteCode[i]);
   return 0;
 }
 
