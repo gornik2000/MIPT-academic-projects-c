@@ -5,8 +5,8 @@ add
 push [200]
 :3
 :25
-:73
-ja :73
+:hello
+ja :hello
 mul
 jmp :37
 jmp :1

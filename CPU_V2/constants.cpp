@@ -14,7 +14,7 @@ enum registers
 #undef CPU_DEF_REG
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
-#define CPU_DEF_TYPE(name, num) reg_##name = (num),
+#define CPU_DEF_TYPE(name, num) type_##name = (num),
 enum types
 {
   #include "types.h"

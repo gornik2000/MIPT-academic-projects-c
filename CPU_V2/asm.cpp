@@ -12,6 +12,10 @@ const int ASM_MAX_LBL_NAME_LENGTH = 20;
 
 const int ASM_MAX_CMD_SIZE = 80;
 
+const int ASM_STAT_CMD_NUM = 0;
+const int ASM_STAT_PAR_NUM = 1;
+const int ASM_STAT_LBL_NUM = 2;
+
 /* returns commands  count [0], parameters count [1], labels count [2];
    function and labelNames should be cleared
 */
@@ -21,10 +25,6 @@ int *firstCompilation (FILE *cmdFile, char **labelNames, int *labelPositions)
   assert (labelNames);
   assert (labelPositions);
 
-  const int STAT_CMD_NUM = 0;
-  const int STAT_PAR_NUM = 1;
-  const int STAT_LBL_NUM = 2;
-
   int *stat = (int *)calloc (3, sizeof (*stat));
   assert (stat != NULL);
 
@@ -32,8 +32,7 @@ int *firstCompilation (FILE *cmdFile, char **labelNames, int *labelPositions)
   int currentPosition = ftell (cmdFile);
   assert (currentPosition != -1L);
 
-  /* number of commands */
-  int    lblNum = 0;
+  /* number of labels */
   int strCmdNum = 0;
 
   char command[ASM_MAX_LBL_NAME_LENGTH] = "";
@@ -42,20 +41,18 @@ int *firstCompilation (FILE *cmdFile, char **labelNames, int *labelPositions)
 
   while (fgets (cmdStr, ASM_MAX_CMD_SIZE, cmdFile) != NULL)
   {
-    strCmdNum = sscanf (cmdStr, "%s", command);
-
-    if (strCmdNum ==  0) continue;
+    if (sscanf (cmdStr, "%s", command) ==  0) continue;
 
     if (*command == ':')
     {
       label = (char *)calloc (strlen (command), sizeof (*label));
       strcpy (label, command);
 
-      labelNames    [lblNum] = label;
-      labelPositions[lblNum] = stat[STAT_CMD_NUM] + 1;
-      lblNum ++;
+      labelNames    [stat[ASM_STAT_LBL_NUM]] = label;
+      labelPositions[stat[ASM_STAT_LBL_NUM]] = stat[ASM_STAT_CMD_NUM];
 
-      stat[STAT_LBL_NUM] += 1;
+      stat[ASM_STAT_LBL_NUM] ++;
+      memset(command, '\0', sizeof(command));
 
       continue;
     }
@@ -64,13 +61,14 @@ int *firstCompilation (FILE *cmdFile, char **labelNames, int *labelPositions)
     { \
       if (strcmp (command, #name) == 0) \
       { \
-        stat[STAT_CMD_NUM] += 1; \
-        stat[STAT_PAR_NUM] += par; \
+        printf (" %s \n", command); \
+        stat[ASM_STAT_CMD_NUM] ++; \
+        stat[ASM_STAT_PAR_NUM] += par; \
+        memset(command, '\0', sizeof(command)); \
       } \
     };
     #include "commands.h"
     #undef CPU_DEF_CMD
-    //printf ("commands %d pars %d labels %d\n",stat[0],stat[1],stat[2]);
   }
   fseek (cmdFile, currentPosition, SEEK_SET);
 
@@ -91,95 +89,62 @@ int compilation (const char *cmdFileName, const char *bytecodeFileName)
 
   int *cmdStat = firstCompilation (cmdFile, labelNames, labelPositions);
   printf ("commands %d pars %d labels %d\n",cmdStat[0],cmdStat[1],cmdStat[2]);
-  /*
-  int *cmdByteCode = (int *)calloc(cmdCount + 1, sizeof (*cmdByteCode));
 
-  char  cmdStr[ASM_MAX_CMD_SIZE] = "";
-  char command[ASM_MAX_CMD_SIZE] = "";
+  char *cmdByteCode = (char *)calloc(cmdStat[ASM_STAT_CMD_NUM], sizeof (*cmdByteCode));
+  int ipCmd = 0;
+  /*change to all types */
+  int *parByteCode = (int *)calloc(cmdStat[ASM_STAT_PAR_NUM], sizeof (*cmdByteCode));
+  int ipPar = 0;
 
-  //char *par1 = (char *)calloc (ASM_MAX_PAR_SIZE, sizeof (*par1));
+  char    cmdStr[ASM_MAX_CMD_SIZE] = "";
+  char   command[ASM_MAX_CMD_SIZE] = "";
+  char parameter[ASM_MAX_CMD_SIZE] = "";
 
-  int ip = 0;
-  /*
   while (fgets(cmdStr, ASM_MAX_CMD_SIZE, cmdFile) != NULL)
   {
-    #define CPU_DEF_CMD(name, num, par, func) \
-    { \
-      if (strcmp (command, #name) == 0) \
-      { \
-        if ((par) > 0) \
-        { \
-          \
-        } \
-        cmdByteCode[ip] =
-        ip += par + 1 \
-      } \
-    }
+    sscanf (cmdStr, "%s%s", command, parameter);
+    #define CPU_DEF_CMD(name, num, par, mode, func)     \
+    {                                                   \
+      if (strcmp (command, #name) == 0)                 \
+      {                                                 \
+        cmdByteCode[ipCmd] = num;                       \
+        ipCmd ++;                                       \
+                                                        \
+        switch (par)                                    \
+        {                                               \
+        case 1:                                         \
+          for (int i = 0; i < cmdStat[2]; i++)          \
+            if (strcmp(labelNames[i], parameter) == 0)  \
+              parByteCode[ipPar] = labelPositions[i];   \
+                                                        \
+          ipPar ++;                                     \
+          break;                                        \
+                                                        \
+        case 2:                                         \
+        /*#define CPU_DEF_REG(regName, regNum)          \
+          {                                             \
+            if (strcmp (parameter, #regName) == 0)      \
+            {                                           \
+              parByteCode[ipPar] = type_reg;            \
+              parByteCode[ipPar + 1 ] = reg_##regName;  \
+              ipPar += 2;                               \
+              continue;                                 \
+            }                                           \
+          }                                             \
+          #include "registers.h"                        \
+          #undef CPU_DEF_REG */                         \
+                                                        \
+          parByteCode[ipPar] = type_val;                \
+          parByteCode[ipPar + 1 ] = atof (command);     \
+                                                        \
+          ipPar += 2;                                   \
+          break;                                        \
+        }                                               \                                     \
+      }                                                 \
+    };
     #include "commands.h"
     #undef CPU_DEF_CMD
-
-    int cmdNumber = getCommand (cmdStr);
-
-
-    if (cmdNumber == 0) continue;
-    //if (cmdNumber == END) return 0;
-
-    if (cmdNumber == PUSH || cmdNumber == POP)
-    {
-      sscanf (cmdStr, "%s%s", command, par1);
-
-      //printf("push-pop %s\n", par1);
-      int type = 0;
-      int value = 0;
-
-      pushPopToByteCode (par1, &type, &value);
-
-      byteCode[ip]   = cmdNumber;
-      byteCode[ip+1] = type;
-      byteCode[ip+2] = value;
-
-      ip += 3;
-
-      continue;
-    }
-
-    if (cmdNumber == JMP || cmdNumber == JA  ||
-        cmdNumber == JB  || cmdNumber == JAE   )
-    {
-      sscanf (cmdStr, "%s%s", command, par1);
-      //printf ("= %s =\n", par1);
-
-      byteCode[ip] = cmdNumber;
-
-      par1 ++;
-      //printf ("= %s =\n", par1);
-      //printf ("= %d =\n", atoi(par1));
-      //printf ("= %d =\n", labels[atoi(par1)]);
-
-      byteCode[ip + 1] = labels[atoi(par1)];
-      //printf ("= %d =\n", byteCode[ip + 1]);
-      ip += 2;
-
-
-      par1 --;
-      //printf ("= %s =\n", par1);
-      continue;
-    }
-    //printf(" 2 ");
-    byteCode[ip] = cmdNumber;
-    ip ++;
-    //printf ("- command number %d\n", cmdNumber);
   }
-  //printf ("%d", cmdCount);
-  fclose (cmdFile);
-
-  FILE *fileCode = fopen (fileByteCodeName, "wb");
-  assert (fileCode);
-  fwrite (byteCode, cmdCount, sizeof(int), fileCode); */
-
-  //fclose(fileCode);
-
-
   for (int i =0; i<cmdStat[2]; i++) printf ("\n position %d name %s", labelPositions[i], labelNames[i]);
 
   for (int i = 0; i < ASM_MAX_LBL_NUMBER; i++) free(labelNames[i]);
