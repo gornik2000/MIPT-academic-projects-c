@@ -42,5 +42,5 @@ void cpuProgrammImplementation (const char *byteCodeFileName)
   int *byteCode = (int *)calloc(byteCodeSize, sizeof (*byteCode));
   fread(byteCode, byteCodeSize, sizeof(int), byteCodeFile);
 
-  //for (int i = 0; i<byteCodeSize; i++) printf("byteCode %d \n", byteCode[i]);
+  for (int i = 0; i<byteCodeSize; i++) printf("byteCode %d \n", byteCode[i]);
 }

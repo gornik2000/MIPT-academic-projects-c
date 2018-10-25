@@ -6,19 +6,19 @@ int compilation (const char *fileCmdName,
 /* fills an array of labels, returns number of commands */
 int firstCompilation (FILE *file, int *flags)
 {
-  assert (file);
+  assert  (file);
   assert (flags);
 
   /* current coursor position */
   int currentPosition = ftell (file);
   assert (currentPosition != -1L);
 
-  int cmdNum = 0;
+  int    cmdNum = 0;
   int strCmdNum = 0;
 
   char *command = (char *)calloc (ASM_MAX_CMD_SIZE + 1, sizeof (*command));
 
-  char par[ASM_MAX_PAR_SIZE]    = "";
+  char    par[ASM_MAX_PAR_SIZE] = "";
   char cmdStr[ASM_MAX_CMD_SIZE] = "";
 
   while (fgets (cmdStr, ASM_MAX_CMD_SIZE, file) != NULL)

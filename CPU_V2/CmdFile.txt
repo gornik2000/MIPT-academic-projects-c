@@ -9,7 +9,7 @@ push [200]
 ja :73
 mul
 jmp :37
-jmp :1
+		jmp :1
 		:37
 		out
 		:48
