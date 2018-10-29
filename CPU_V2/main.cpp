@@ -1,12 +1,20 @@
-//#include "commands.cpp"
-#include "asm.cpp"
-//#include "CPU.cpp"
+typedef int elem_cpu;
+#define ELEM_CPU_PRINT "%d"
 
-const char *cmdFileName      = "CmdFile.txt" ;
+#include "constants.cpp"
+#include "asm.cpp"
+#include "disasm.cpp"
+#include "cpu.cpp"
+
+const char *cmdFileName      = "CmdFile.txt";
 const char *byteCodeFileName = "ByteCode.txt";
+const char *inCompFileName   = "BackInCmd.txt";
 
 int main ()
 {
   compilation  (cmdFileName, byteCodeFileName);
-  //cpuProgrammImplementation (byteCodeFileName);
+
+  inverseCompilation (byteCodeFileName, inCompFileName);
+
+  //implementation (byteCodeFileName);
 }

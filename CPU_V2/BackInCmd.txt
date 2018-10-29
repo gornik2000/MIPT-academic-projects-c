@@ -1,0 +1,17 @@
+sin 
+push r1 
+push r2 
+pop r3 
+pop r4 
+push 321 
+push 121 
+pop r1 
+pop r2 
+push [100] 
+pop [100] 
+end 
+in 
+jmp 5 
+jmp 13 
+ret 
+call 1 

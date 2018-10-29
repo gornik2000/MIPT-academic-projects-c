@@ -1,17 +1,20 @@
-push ax
-push 521
-add
+sin
 :1
-push [200]
-:3
-:25
-:hello
-ja :hello
-mul
-jmp :37
-jmp :1
-:37
-out
-:48
-ja :48
+push r1
+push r2
+pop r3
+pop r4
+:fn_one
+push 321.21
+push 121
+pop  r1
+pop  r2
+push [100]
+pop  [100]
 end
+in
+:fn_two
+jmp :fn_one
+jmp :fn_two
+ret
+call :1

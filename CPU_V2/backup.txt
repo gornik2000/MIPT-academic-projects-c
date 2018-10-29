@@ -1,0 +1,31 @@
+
+    /*#define CPU_DEF_CMD(name, num, par, mode, func)     \
+    {                                                   \
+      if (strcmp (command, #name) == 0)                 \
+      {                                                 \
+        cmdByteCode[ipCmd] = num;                       \
+        ipCmd ++;                                       \
+                                                        \
+        switch (par)                                    \
+        {                                               \
+        case 1:                                         \
+          for (int i = 0; i < cmdStat[2]; i++)          \
+            if (strcmp(labelNames[i], parameter) == 0)  \
+              parByteCode[ipPar] = labelPositions[i];   \
+                                                        \
+          ipPar ++;                                     \
+          break;                                        \
+                                                        \
+        case 2:                                         \
+        /*#define CPU_DEF_REG(regName, regNum)          \
+          {                                             \
+            if (strcmp (parameter, #regName) == 0)      \
+            {                                           \
+              parByteCode[ipPar] = type_reg;            \
+              parByteCode[ipPar + 1 ] = reg_##regName;  \
+              ipPar += 2;                               \
+              continue;                                 \
+            }                                           \
+          }                                             \
+          #include "registers.h"                        \
+          #undef CPU_DEF_REG */                         \
