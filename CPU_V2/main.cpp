@@ -1,4 +1,5 @@
 typedef int elem_cpu;
+
 #define ELEM_CPU_PRINT "%d"
 
 #include "constants.cpp"
@@ -16,5 +17,5 @@ int main ()
 
   inverseCompilation (byteCodeFileName, inCompFileName);
 
-  //implementation (byteCodeFileName);
+  implementation (byteCodeFileName);
 }

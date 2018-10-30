@@ -4,27 +4,29 @@
     {                                                                     \
       cmdByteCode[ipCmd] = num;                                           \
       ipCmd ++;                                                           \
+                                                                          \
       switch (par)                                                        \
       {                                                                   \
         case 1:                                                           \
         {                                                                 \
-          parByteCode[ipPar]     = getVal  (parameter,                    \
-                                            getType (parameter),          \
-                                            labelNames,                   \
-                                            labelPositions,               \
-                                            cmdStat[ASM_STAT_LBL_NUM]);   \
-          ipPar += 1;                                                     \
+          parByteCode[ipPar] = getVal  (parameter,                        \
+                                        getType (parameter),              \
+                                        labelNames,                       \
+                                        labelPositions,                   \
+                                        cmdStat[ASM_STAT_LBL_NUM]);       \
+          ipPar ++;                                                       \
           break;                                                          \
         }                                                                 \
         case 2:                                                           \
         {                                                                 \
-          parByteCode[ipPar]     = getType (parameter);                   \
-          parByteCode[ipPar + 1] = getVal  (parameter,                    \
-                                            parByteCode[ipPar],           \
-                                            labelNames,                   \
-                                            labelPositions,               \
-                                            cmdStat[ASM_STAT_LBL_NUM]);   \
-          ipPar += 2;                                                     \
+          cmdByteCode[ipCmd] = getType (parameter);                       \
+          parByteCode[ipPar] = getVal  (parameter,                        \
+                                        cmdByteCode[ipCmd],               \
+                                        labelNames,                       \
+                                        labelPositions,                   \
+                                        cmdStat[ASM_STAT_LBL_NUM]);       \
+          ipCmd ++;                                                       \
+          ipPar ++;                                                       \
           break;                                                          \
         }                                                                 \
       }                                                                   \

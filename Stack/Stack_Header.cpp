@@ -24,7 +24,7 @@ FILE *STACK_LOGS = fopen ("Stack_logs.txt", "w");
 //
 //  Typedefs size_t as data_t - type of data elements of stack
 */
-typedef size_t data_t;
+//typedef size_t data_t;
 /*!
 //  \def DATA_ST_TYPE
 //

@@ -1,6 +1,7 @@
 sin
 :1
 push r1
+:2
 push r2
 pop r3
 pop r4
@@ -12,9 +13,9 @@ pop  r2
 push [100]
 pop  [100]
 end
-in
+out
 :fn_two
-jmp :fn_one
+jmp :2
 jmp :fn_two
 ret
 call :1

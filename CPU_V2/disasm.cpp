@@ -3,11 +3,11 @@
 #include <stdlib.h>
 #include <string.h>
 
-typedef elem_cpu elem_disasm;
+typedef elem_cpu data_disasm;
 #define ELEM_DISASM_PRINT ELEM_CPU_PRINT
 
 /* change to typedef format */
-void fprintValName (FILE *file, char parType, elem_disasm parTwo)
+void fprintValName (FILE *file, char parType, data_disasm parTwo)
 {
   switch (parType)
   {
@@ -45,14 +45,14 @@ void inverseCompilation (const char *codeFileName, const char *cmdFileName)
   //printf ("\ncommands %d pars %d labels %d\n", statBuf[ASM_STAT_CMD_NUM], statBuf[ASM_STAT_PAR_NUM], statBuf[ASM_STAT_LBL_NUM]);
 
   /* reading commands */
-  char *cmdBuf = (char *)calloc (statBuf[ASM_STAT_CMD_NUM], sizeof (*cmdBuf));
-  fread  (cmdBuf, sizeof (char), statBuf[ASM_STAT_CMD_NUM], codeFile);
+  char        *cmdBuf = (char *)calloc (statBuf[ASM_STAT_CMD_NUM], sizeof (*cmdBuf));
+  fread (cmdBuf, sizeof (char), statBuf[ASM_STAT_CMD_NUM], codeFile);
 
   //for (int i = 0; i < statBuf[ASM_STAT_CMD_NUM]; i++) printf ("\n command %d", cmdBuf[i]);
 
   /* reading parameters */
-  elem_disasm *parBuf = (elem_disasm *)calloc (statBuf[ASM_STAT_PAR_NUM], sizeof (*parBuf));
-  fread (parBuf, sizeof (elem_disasm), statBuf[ASM_STAT_PAR_NUM], codeFile);
+  data_disasm *parBuf = (data_disasm *)calloc (statBuf[ASM_STAT_PAR_NUM], sizeof (*parBuf));
+  fread (parBuf, sizeof (data_disasm), statBuf[ASM_STAT_PAR_NUM], codeFile);
 
   //for (int i = 0; i < statBuf[ASM_STAT_PAR_NUM]; i++) printf ("\n parameter %d", parBuf[i]);
 
@@ -74,11 +74,12 @@ void inverseCompilation (const char *codeFileName, const char *cmdFileName)
         {                                                               \
           case 1:                                                       \
             fprintValName (cmdFile, type_lbl, parBuf[ipPar]);           \
-            ipPar += 1;                                                 \
+            ipPar ++;                                                   \
             break;                                                      \
           case 2:                                                       \
-            fprintValName (cmdFile, parBuf[ipPar], parBuf[ipPar + 1]);  \
-            ipPar += 2;                                                 \
+            ipCmd ++;                                                   \
+            fprintValName (cmdFile, cmdBuf[ipCmd], parBuf[ipPar]);      \
+            ipPar ++;                                                   \
             break;                                                      \
         }                                                               \
         fprintf (cmdFile, "\n");                                        \
@@ -87,4 +88,7 @@ void inverseCompilation (const char *codeFileName, const char *cmdFileName)
     #include "commands.h"
     #undef CPU_DEF_CMD
   }
+
+  free(cmdBuf);
+  free(parBuf);
 }

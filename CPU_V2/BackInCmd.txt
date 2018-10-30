@@ -10,8 +10,8 @@ pop r2
 push [100] 
 pop [100] 
 end 
-in 
-jmp 5 
-jmp 13 
+out 
+jmp 3 
+jmp 23 
 ret 
 call 1 

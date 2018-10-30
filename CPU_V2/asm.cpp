@@ -17,7 +17,7 @@ const int ASM_STAT_PAR_NUM = 1;
 
 const int ASM_STAT_LBL_NUM = 2;
 
-typedef elem_cpu elem_asm;
+typedef elem_cpu data_asm;
 
 /* returns commands  count [0], parameters count [1], labels count [2];
    function and labelNames should be cleared
@@ -68,7 +68,16 @@ int *firstCompilation (FILE *cmdFile, char **labelNames, int *labelPositions)
       {                                                         \
         /*printf (" %s \n", command);*/                         \
         stat[ASM_STAT_CMD_NUM] ++;                              \
-        stat[ASM_STAT_PAR_NUM] += par;                          \
+        switch (par)                                            \
+        {                                                       \
+          case 1:                                               \
+            stat[ASM_STAT_PAR_NUM] += par;                      \
+            break;                                              \
+          case 2:                                               \
+            stat[ASM_STAT_CMD_NUM] ++;                          \
+            stat[ASM_STAT_PAR_NUM] ++;                          \
+            break;                                              \
+        }                                                       \
         memset(command, '\0', sizeof(command));                 \
       }                                                         \
     };
@@ -82,7 +91,7 @@ int *firstCompilation (FILE *cmdFile, char **labelNames, int *labelPositions)
   return stat;
 }
 
-elem_asm getType (char *cmd)
+char getType (char *cmd)
 {
   switch (cmd[0])
   {
@@ -93,7 +102,7 @@ elem_asm getType (char *cmd)
   }
 }
 
-elem_asm getVal (char *cmd,       char type,
+data_asm getVal (char *cmd,       char type,
                  char **lblNames, int *lblPos, int lblNumber)
 {
   switch (type)
@@ -141,7 +150,7 @@ int compilation (const char *cmdFileName, const char *byteCodeFileName)
   char *cmdByteCode = (char *)calloc(cmdStat[ASM_STAT_CMD_NUM], sizeof (*cmdByteCode));
   int   ipCmd = 0;
   /*change to all types */
-  elem_asm  *parByteCode = (elem_asm  *)calloc(cmdStat[ASM_STAT_PAR_NUM], sizeof (*parByteCode));
+  data_asm  *parByteCode = (data_asm  *)calloc(cmdStat[ASM_STAT_PAR_NUM], sizeof (*parByteCode));
   int        ipPar = 0;
 
   char    cmdStr[ASM_MAX_CMD_SIZE] = "";
@@ -161,14 +170,14 @@ int compilation (const char *cmdFileName, const char *byteCodeFileName)
 
   //for (int i = 0; i < cmdStat[ASM_STAT_LBL_NUM]; i++) printf ("\n position %d name %s", labelPositions[i], labelNames[i]);
   //for (int i = 0; i < cmdStat[ASM_STAT_CMD_NUM]; i++) printf ("\n command %d", cmdByteCode[i]);
-  //for (int i = 0; i < cmdStat[ASM_STAT_PAR_NUM]; i++) printf ("\n parameter %lf", parByteCode[i]);
+  //for (int i = 0; i < cmdStat[ASM_STAT_PAR_NUM]; i++) printf ("\n parameter %d", parByteCode[i]);
 
   /* write bytecode */
   FILE *byteCodeFile = fopen (byteCodeFileName, "wb");
 
   fwrite (cmdStat,     sizeof(int),        3,                         byteCodeFile);
   fwrite (cmdByteCode, sizeof (char),      cmdStat[ASM_STAT_CMD_NUM], byteCodeFile);
-  fwrite (parByteCode, sizeof (elem_asm) , cmdStat[ASM_STAT_PAR_NUM], byteCodeFile);
+  fwrite (parByteCode, sizeof (data_asm) , cmdStat[ASM_STAT_PAR_NUM], byteCodeFile);
 
   fclose (byteCodeFile);
 
