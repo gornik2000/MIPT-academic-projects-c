@@ -1,7 +1,7 @@
 /* name-num-par number-mode-func */
 /* mode: 1 - stack, 2 - registers, 3 - ram, 4 - reg and ram, 5 - labels */
 CPU_DEF_CMD ( end,  1, 0, 0, cpu_end )
-CPU_DEF_CMD (  in,  2, 0, 4, cpu_cmd )
+CPU_DEF_CMD (  in,  2, 0, 4, cpu_in  )
 CPU_DEF_CMD ( out,  3, 0, 0, cpu_out )
 CPU_DEF_CMD (push,  4, 2, 4, cpu_push)
 CPU_DEF_CMD ( pop,  5, 2, 4, cpu_pop )

@@ -2,6 +2,7 @@ typedef int elem_cpu;
 
 #define ELEM_CPU_PRINT "%d"
 
+#include <math.h>
 #include "constants.cpp"
 #include "asm.cpp"
 #include "disasm.cpp"
@@ -13,9 +14,10 @@ const char *inCompFileName   = "BackInCmd.txt";
 
 int main ()
 {
-  compilation  (cmdFileName, byteCodeFileName);
+  //compilation        (cmdFileName, byteCodeFileName);
 
-  inverseCompilation (byteCodeFileName, inCompFileName);
+  //inverseCompilation (byteCodeFileName, inCompFileName);
 
-  implementation (byteCodeFileName);
+  implementa
+  tion     (byteCodeFileName);
 }
