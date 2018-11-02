@@ -6,6 +6,8 @@
 typedef elem_cpu data_disasm;
 #define ELEM_DISASM_PRINT ELEM_CPU_PRINT
 
+//=============================================================================
+
 void fprintValName (FILE *file, char parType, data_disasm parTwo);
 
 void inverseCompilation (const char *codeFileName, const char *cmdFileName);

@@ -3,8 +3,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-//=============================================================================
-
 const int ASM_MAX_LBL_NUMBER = 100;
 
 const int ASM_MAX_LBL_NAME_LENGTH = 100;
@@ -18,6 +16,8 @@ const int ASM_STAT_PAR_NUM = 1;
 const int ASM_STAT_LBL_NUM = 2;
 
 typedef elem_cpu data_asm;
+
+//=============================================================================
 
 int compilation (const char *cmdFileName, const char *byteCodeFileName);
 
@@ -86,7 +86,8 @@ int compilation (const char *cmdFileName, const char *byteCodeFileName)
   free (labelPositions);
 }
 
-/* returns commands  count [0], parameters count [1], labels count [2];
+/*
+   returns commands  count [0], parameters count [1], labels count [2];
    function and labelNames should be cleared
 */
 int *firstCompilation (FILE *cmdFile, char **labelNames, int *labelPositions, int *labelParameter)
@@ -219,5 +220,4 @@ data_asm getVal (char *cmd,       char type,
     case type_inp:
       return 0;
   }
-  return 0;
 }

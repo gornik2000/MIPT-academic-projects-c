@@ -19,24 +19,19 @@ struct myCpu
 
 typedef struct myCpu cpu_t;
 
+//=============================================================================
+
 void cpuCtor (cpu_t *c);
 void cpuDtor (cpu_t *c);
 
 void implementation (const char *byteCodeFileName);
 
-//#include "commands_functions.cpp"
 #define CPU_DEF_CMD(name, num, par, func) \
 void cpu_##name(cpu_t *cpu, int *ipCmd, int *ipPar, char *cmdBuf, data_cpu *parBuf) func
 
 #include "commands.h"
 
 #undef CPU_DEF_CMD
-
-void implementation (const char *byteCodeFileName);
-
-void cpuDtor (cpu_t *c);
-
-void cpuCtor (cpu_t *c);
 
 //=============================================================================
 
