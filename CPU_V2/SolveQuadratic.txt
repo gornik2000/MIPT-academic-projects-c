@@ -1,0 +1,91 @@
+;-----QUADRATIC EQUATIONS SOLVER-------
+
+	push in
+	push in
+	push in
+	
+	call :fn_quadratic
+	out
+	end
+
+;--------------------------------------	
+	
+:fn_quadratic
+	pop r3
+	pop r2
+	pop r1
+	
+	push r1
+	jinz :a!=0
+		;bx+c=0
+		push r2
+		push r3
+		call :fn_linear
+		ret
+:a!=0
+	push r3
+	jinz :c!=0
+		;axx+bx=0
+		push 0
+		push r1
+		push r2
+		call :fn_linear
+		ret
+:c!=0
+	push r2
+	jinz :b!=0
+		;axx+c=0
+		push 0
+		push r3
+		push r1
+		div
+		mul
+		sqrt
+		pop r1
+		push r1
+		push r1
+		csgn
+		ret
+:b!=0
+	;axx+bx+c=0
+	push r2
+	sqr
+	push 4
+	push r1
+	push r3
+	sub
+	sub
+	mul
+	sqrt
+	push 2
+	push r1
+	sub
+	div
+	pop r3
+	push r2
+	csgn
+	push 2	
+	push r1
+	sub
+	div
+	pop r1
+	push r1
+	push r3
+	mul
+	push r1
+	push r3
+	add
+	ret
+
+;--------------------------------------
+	
+:fn_linear
+	pop r2
+	pop r1
+
+	push 0
+	push r2
+	push r1
+	div
+	mul
+	ret

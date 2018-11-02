@@ -1,16 +1,14 @@
 #include <stdio.h>
 
-void sum(int a)
-{
-  printf(" %d ", a*a);
-}
+#define CPU_DEF_CMD(name, num, par, func) \
+void cpu_##name(int *i) func;
+CPU_DEF_CMD ( add,  1, 0, {(*i) ++;} )
+#undef CPU_DEF_CMD
 
-#define def_cmd(function) \
-{\
-  function(15);\
-}
-
-int main ()
+int main()
 {
-  def_cmd(sum);
+  int i = 0;
+  cpu_add (&i);
+  cpu_add (&i);
+  printf("%d",i);
 }

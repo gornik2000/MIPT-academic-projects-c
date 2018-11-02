@@ -6,33 +6,11 @@
 typedef elem_cpu data_disasm;
 #define ELEM_DISASM_PRINT ELEM_CPU_PRINT
 
-/* change to typedef format */
-void fprintValName (FILE *file, char parType, data_disasm parTwo)
-{
-  switch (parType)
-  {
-    case type_val:
-      fprintf (file, ELEM_DISASM_PRINT" ", parTwo);
-      break;
-    case type_reg:
-      #define CPU_DEF_REG(name, num) \
-      {                              \
-        if (parTwo == num)           \
-          fprintf(file, #name" ");   \
-      }
+void fprintValName (FILE *file, char parType, data_disasm parTwo);
 
-      #include "registers.h"
+void inverseCompilation (const char *codeFileName, const char *cmdFileName);
 
-      #undef CPU_DEF_REG
-      break;
-    case type_ram:
-      fprintf (file, "["ELEM_DISASM_PRINT"] ", parTwo);
-      break;
-    case type_lbl:
-      fprintf (file, ELEM_DISASM_PRINT" ", parTwo);
-      break;
-  }
-}
+//=============================================================================
 
 void inverseCompilation (const char *codeFileName, const char *cmdFileName)
 {
@@ -42,19 +20,14 @@ void inverseCompilation (const char *codeFileName, const char *cmdFileName)
   /* reading statistics info */
   int statBuf[3];
   fread (statBuf, sizeof (int), 3, codeFile);
-  //printf ("\ncommands %d pars %d labels %d\n", statBuf[ASM_STAT_CMD_NUM], statBuf[ASM_STAT_PAR_NUM], statBuf[ASM_STAT_LBL_NUM]);
 
   /* reading commands */
   char        *cmdBuf = (char *)calloc (statBuf[ASM_STAT_CMD_NUM], sizeof (*cmdBuf));
   fread (cmdBuf, sizeof (char), statBuf[ASM_STAT_CMD_NUM], codeFile);
 
-  //for (int i = 0; i < statBuf[ASM_STAT_CMD_NUM]; i++) printf ("\n command %d", cmdBuf[i]);
-
   /* reading parameters */
   data_disasm *parBuf = (data_disasm *)calloc (statBuf[ASM_STAT_PAR_NUM], sizeof (*parBuf));
   fread (parBuf, sizeof (data_disasm), statBuf[ASM_STAT_PAR_NUM], codeFile);
-
-  //for (int i = 0; i < statBuf[ASM_STAT_PAR_NUM]; i++) printf ("\n parameter %d", parBuf[i]);
 
   /* writing information */
   FILE *cmdFile = fopen (cmdFileName, "w");
@@ -65,7 +38,7 @@ void inverseCompilation (const char *codeFileName, const char *cmdFileName)
   for (int ipCmd = 0; ipCmd < statBuf[ASM_STAT_CMD_NUM]; ipCmd ++)
   {
     cmd = cmdBuf[ipCmd];
-    #define CPU_DEF_CMD(name, num, par, mode, func)                     \
+    #define CPU_DEF_CMD(name, num, par, func)                           \
     {                                                                   \
       if (cmd == num)                                                   \
       {                                                                 \
@@ -74,8 +47,10 @@ void inverseCompilation (const char *codeFileName, const char *cmdFileName)
         {                                                               \
           case 1:                                                       \
             fprintValName (cmdFile, type_lbl, parBuf[ipPar]);           \
-            ipPar ++;                                                   \
+            fprintValName (cmdFile, type_lbl, parBuf[ipPar + 1]);       \
+            ipPar += 2;                                                 \
             break;                                                      \
+                                                                        \
           case 2:                                                       \
             ipCmd ++;                                                   \
             fprintValName (cmdFile, cmdBuf[ipCmd], parBuf[ipPar]);      \
@@ -89,6 +64,42 @@ void inverseCompilation (const char *codeFileName, const char *cmdFileName)
     #undef CPU_DEF_CMD
   }
 
-  free(cmdBuf);
-  free(parBuf);
+  free (cmdBuf);
+  free (parBuf);
+  printf (" # Reverse compilation was successful \n");
+}
+
+/* change to typedef format */
+void fprintValName (FILE *file, char parType, data_disasm parTwo)
+{
+  switch (parType)
+  {
+    case type_val:
+      fprintf (file, ELEM_DISASM_PRINT" ", parTwo);
+      break;
+
+    case type_reg:
+      #define CPU_DEF_REG(name, num) \
+      {                              \
+        if (parTwo == num)           \
+          fprintf(file, #name" ");   \
+      }
+
+      #include "registers.h"
+
+      #undef CPU_DEF_REG
+      break;
+
+    case type_ram:
+      fprintf (file, "["ELEM_DISASM_PRINT"] ", parTwo);
+      break;
+
+    case type_lbl:
+      fprintf (file, ELEM_DISASM_PRINT" ", parTwo);
+      break;
+
+    case type_inp:
+      fprintf (file, "in ");
+      break;
+  }
 }

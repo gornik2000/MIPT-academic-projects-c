@@ -30,7 +30,7 @@ FILE *STACK_LOGS = fopen ("Stack_logs.txt", "w");
 //
 //  Gives information about data_t type for outputting
 */
-#define DATA_ST_TYPE "%d"
+#define DATA_ST_TYPE "%lf"
 /*!
 //  \typedef size_t elem_t;
 //
@@ -72,7 +72,7 @@ typedef struct myStack stack_t;
 //
 //  Minimal size of stack capacity
 */
-const int MINSTACKCAPACITY = 8;
+const int MINSTACKCAPACITY = 16;
 /*!
 //  \var const int POISON
 //
@@ -103,8 +103,8 @@ const data_t CANARY = 5553535;
 void stackCtor (stack_t *s);
 void stackDtor (stack_t *s);
 
-void  stackPush (stack_t *s, elem_t number);
-elem_t stackPop (stack_t *s);
+void  stackPush (stack_t *s, data_t number);
+data_t stackPop (stack_t *s);
 
 void stackChangeCapacity (stack_t *s, float changeValue);
 

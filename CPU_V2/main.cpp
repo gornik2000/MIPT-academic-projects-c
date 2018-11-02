@@ -1,6 +1,6 @@
-typedef int elem_cpu;
+typedef double elem_cpu;
 
-#define ELEM_CPU_PRINT "%d"
+#define ELEM_CPU_PRINT "%lf"
 
 #include <math.h>
 #include "constants.cpp"
@@ -8,16 +8,42 @@ typedef int elem_cpu;
 #include "disasm.cpp"
 #include "cpu.cpp"
 
-const char *cmdFileName      = "CmdFile.txt";
-const char *byteCodeFileName = "ByteCode.txt";
-const char *inCompFileName   = "BackInCmd.txt";
+#define taskFact
+#ifdef  taskFact
+  const char *CMD_FILE_NAME     = "Factorial.txt";
+#else
+  const char *CMD_FILE_NAME       = "SolveQuadratic.txt";
+#endif
+
+const char *BYTECODE_FILE_NAME  = "ByteCode.txt";
+const char *IN_COMP_FILE_NAME   = "BackInCmd.txt";
+
+//=============================================================================
 
 int main ()
 {
-  //compilation        (cmdFileName, byteCodeFileName);
+  char mode = 0;
+  printf (" # Enter 1 for compilation, "
+                   "2 for inverse compilation, "
+                   "3 for implementation \n");
+  scanf ("%d", &mode);
 
-  //inverseCompilation (byteCodeFileName, inCompFileName);
+  switch (mode)
+  {
+  case 1:
+    compilation        (CMD_FILE_NAME,      BYTECODE_FILE_NAME);
+    break;
 
-  implementa
-  tion     (byteCodeFileName);
+  case 2:
+    inverseCompilation (BYTECODE_FILE_NAME, IN_COMP_FILE_NAME);
+    break;
+
+  case 3:
+    implementation     (BYTECODE_FILE_NAME);
+    break;
+
+  default:
+    printf (" # Incorrect inputed number \n");
+    break;
+  }
 }

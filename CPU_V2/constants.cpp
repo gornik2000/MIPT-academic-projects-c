@@ -1,5 +1,5 @@
 //-----------------------------------------------------------------------------
-#define CPU_DEF_CMD(name, num, par, mode, func) cmd_##name = (num),
+#define CPU_DEF_CMD(name, num, par, func) cmd_##name = (num),
 enum commands
 {
   #include "commands.h"

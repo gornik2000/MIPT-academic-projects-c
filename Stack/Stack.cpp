@@ -69,7 +69,7 @@ void stackDtor (stack_t *s)
 //  \param element Element inputted in stack
 */
 
-void stackPush (stack_t *s, elem_t element)
+void stackPush (stack_t *s, data_t element)
 {
   const char *error = stackIsOk (s);
   if (error == 0)
@@ -100,14 +100,14 @@ void stackPush (stack_t *s, elem_t element)
 //  \warning returns 0 if stack size = 0
 */
 
-elem_t stackPop (stack_t *s)
+data_t stackPop (stack_t *s)
 {
   (s->size) --;
 
   const char *error = stackIsOk (s);
   if (error == 0)
   {
-    elem_t element = (s->data)[s->size];
+    data_t element = (s->data)[s->size];
     (s->data)[s->size] = POISON;
 
     if (((increaseCapacityCoefficient + 1) * s->size < s->capacity) \

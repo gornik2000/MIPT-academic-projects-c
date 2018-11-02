@@ -1,4 +1,4 @@
-#define CPU_DEF_CMD(name, num, par, mode, func)                           \
+#define CPU_DEF_CMD(name, num, par, func)                                 \
   {                                                                       \
     if ((strcmp (command, #name) == 0))                                   \
     {                                                                     \
@@ -8,17 +8,20 @@
       switch (par)                                                        \
       {                                                                   \
         case 1:                                                           \
-        {                                                                 \
           parByteCode[ipPar] = getVal  (parameter,                        \
                                         getType (parameter),              \
                                         labelNames,                       \
                                         labelPositions,                   \
                                         cmdStat[ASM_STAT_LBL_NUM]);       \
-          ipPar ++;                                                       \
+          parByteCode[ipPar + 1] = getVal  (parameter,                    \
+                                            getType (parameter),          \
+                                            labelNames,                   \
+                                            labelParameter,               \
+                                            cmdStat[ASM_STAT_LBL_NUM]);   \
+          ipPar += 2;                                                     \
           break;                                                          \
-        }                                                                 \
+                                                                          \
         case 2:                                                           \
-        {                                                                 \
           cmdByteCode[ipCmd] = getType (parameter);                       \
           parByteCode[ipPar] = getVal  (parameter,                        \
                                         cmdByteCode[ipCmd],               \
@@ -28,7 +31,6 @@
           ipCmd ++;                                                       \
           ipPar ++;                                                       \
           break;                                                          \
-        }                                                                 \
       }                                                                   \
     }                                                                     \
   }

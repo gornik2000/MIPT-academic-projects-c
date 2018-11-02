@@ -1,17 +1,21 @@
-sin 
-push r1 
-push r2 
-pop r3 
-pop r4 
-push 321 
-push 121 
-pop r1 
-pop r2 
-push [100] 
-pop [100] 
-end 
+push in 
+call 5.000000 5.000000 
 out 
-jmp 3 
-jmp 23 
+end 
+pop r1 
+push r1 
+push 1.000000 
+jb 15.000000 15.000000 
+push 1.000000 
 ret 
-call 1 
+push r1 
+push r1 
+push 1.000000 
+mul 
+pop r1 
+push r1 
+sub 
+push r1 
+push 1.000000 
+jb 17.000000 17.000000 
+ret 

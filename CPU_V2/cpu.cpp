@@ -14,7 +14,7 @@ struct myCpu
   stack_t   mem;
   stack_t   fun;
   data_cpu *reg;
-  int      *ram;
+  data_cpu *ram;
 };
 
 typedef struct myCpu cpu_t;
@@ -24,34 +24,21 @@ void cpuDtor (cpu_t *c);
 
 void implementation (const char *byteCodeFileName);
 
-#include "commands_functions.cpp"
+//#include "commands_functions.cpp"
+#define CPU_DEF_CMD(name, num, par, func) \
+void cpu_##name(cpu_t *cpu, int *ipCmd, int *ipPar, char *cmdBuf, data_cpu *parBuf) func
 
-void cpuCtor (cpu_t *c)
-{
-  assert (c);
+#include "commands.h"
 
-  c->mem = {};
+#undef CPU_DEF_CMD
 
-  stackCtor (&(c->mem));
-  stackCtor (&(c->fun));
+void implementation (const char *byteCodeFileName);
 
-  c->reg = (data_cpu *)calloc (REG_NUMBER, sizeof (*(c->reg)));
-  c->ram = (data_cpu *)calloc (RAM_MEMORY_SIZE, sizeof (*(c->ram)));
-}
+void cpuDtor (cpu_t *c);
 
-void cpuDtor (cpu_t *c)
-{
-    /* delete CPU and all its information */
-    stackDtor (&(c->mem));
-    stackDtor (&(c->fun));
+void cpuCtor (cpu_t *c);
 
-    free(c->ram);
-    free(c->reg);
-
-    c->ram = NULL;
-    c->reg = NULL;
-    c = NULL;
-}
+//=============================================================================
 
 void implementation (const char *byteCodeFileName)
 {
@@ -76,27 +63,56 @@ void implementation (const char *byteCodeFileName)
   int ipCmd = 0;
   char  cmd = 0;
 
-  cpu_t cpu = {};
-  cpuCtor(&cpu);
+  cpu_t cpu = {0};
+  cpuCtor (&cpu);
 
   while (ipCmd < statBuf[ASM_STAT_CMD_NUM])
   {
     cmd = cmdBuf[ipCmd];
-    #define CPU_DEF_CMD(name, num, par, mode, func)               \
+    #define CPU_DEF_CMD(name, num, par, func)                     \
     {                                                             \
       if (cmd == num)                                             \
       {                                                           \
-        printf (" %d ", ipCmd);                                   \
-        printf (#func"\n");                                       \
-        func(&cpu, &ipCmd, &ipPar, cmdBuf, parBuf);               \
+        /*printf (#name"\n");                                     \
+        printf (" %d \n\n", ipCmd);*/                             \
+        cpu_##name(&cpu, &ipCmd, &ipPar, cmdBuf, parBuf);         \
       }                                                           \
     }
     #include "commands.h"
     #undef CPU_DEF_CMD
   }
 
-  cpuCtor(&cpu);
+  cpuDtor (&cpu);
 
   free(cmdBuf);
   free(parBuf);
+
+  printf (" # Implementation was successful \n");
+}
+
+void cpuCtor (cpu_t *c)
+{
+  assert (c);
+
+  c->mem = {0};
+
+  stackCtor (&(c->mem));
+  stackCtor (&(c->fun));
+
+  c->reg = (data_cpu *)calloc (REG_NUMBER, sizeof (*(c->reg)));
+  c->ram = (data_cpu *)calloc (RAM_MEMORY_SIZE, sizeof (*(c->ram)));
+}
+
+void cpuDtor (cpu_t *c)
+{
+    /* delete CPU and all its information */
+    stackDtor (&(c->mem));
+    stackDtor (&(c->fun));
+
+    free(c->ram);
+    free(c->reg);
+
+    c->ram = NULL;
+    c->reg = NULL;
+    c = NULL;
 }

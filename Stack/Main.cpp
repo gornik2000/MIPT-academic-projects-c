@@ -17,6 +17,7 @@
     if defined erases supporting debug functions \
     if not defined many supporting functions will be able to work
 //#define RELEASE
+typedef double data_t;
 
 #include "Stack.cpp"
 
@@ -28,7 +29,6 @@
 #endif
 
 
-
 int main()
 {
   iPrint (" # Created by Nikita Gorbachev\n");
@@ -38,7 +38,6 @@ int main()
   stack_t myfirststack = {};
 
   stackCtor (&myfirststack);
-  (&myfirststack)->capacity = -100;
   stackDtor (&myfirststack);
 
   return 1;
