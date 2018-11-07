@@ -85,7 +85,7 @@ CPU_DEF_CMD ( add,  6, 0,
   *ipCmd += 1;
 })
 
-CPU_DEF_CMD ( sub,  7, 0,
+CPU_DEF_CMD ( mul,  7, 0,
 {
   data_cpu a = stackPop (&(cpu->mem));
   data_cpu b = stackPop (&(cpu->mem));
@@ -94,7 +94,7 @@ CPU_DEF_CMD ( sub,  7, 0,
   *ipCmd += 1;
 })
 
-CPU_DEF_CMD ( mul,  8, 0,
+CPU_DEF_CMD ( sub,  8, 0,
 {
   data_cpu a = stackPop (&(cpu->mem));
   data_cpu b = stackPop (&(cpu->mem));

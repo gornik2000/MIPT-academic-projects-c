@@ -22,10 +22,10 @@
 :start_cycle
 	push r1
 	push 1
-	mul
+	sub
 	pop r1
 	push r1
-	sub
+	mul
 	
 	push r1
 	push 1

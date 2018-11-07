@@ -39,7 +39,7 @@
 		push r3
 		push r1
 		div
-		mul
+		sub
 		sqrt
 		pop r1
 		push r1
@@ -53,25 +53,25 @@
 	push 4
 	push r1
 	push r3
-	sub
-	sub
 	mul
+	mul
+	sub
 	sqrt
 	push 2
 	push r1
-	sub
+	mul
 	div
 	pop r3
 	push r2
 	csgn
 	push 2	
 	push r1
-	sub
+	mul
 	div
 	pop r1
 	push r1
 	push r3
-	mul
+	sub
 	push r1
 	push r3
 	add
@@ -87,5 +87,5 @@
 	push r2
 	push r1
 	div
-	mul
+	sub
 	ret
