@@ -33,21 +33,20 @@ void errorDecoder (char error, int line,
 
 char myListIsOk (list *l, int line, const char *funcName, const char* fileName)
 {
+  listPrint (l);
+
   if (l->count < 0)
   {
-    listPrint (l);
     errorDecoder (ERR_NEG_COUNT, line, funcName, fileName);
   }
 
   if (l->head == 0)
   {
-    listPrint (l);
     errorDecoder (ERR_INV_HEAD,  line, funcName, fileName);
   }
 
   if (l->tail == 0)
   {
-    listPrint (l);
     errorDecoder (ERR_INV_TAIL,  line, funcName, fileName);
   }
 }
