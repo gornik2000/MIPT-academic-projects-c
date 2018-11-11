@@ -1,0 +1,12 @@
+
+ # size  10 head  -1 tail  -1 free   0 count 0 sorted 1
+ # info          0 prev  -1 next   1
+ # info          0 prev   0 next   2
+ # info          0 prev   1 next   3
+ # info          0 prev   2 next   4
+ # info          0 prev   3 next   5
+ # info          0 prev   4 next   6
+ # info          0 prev   5 next   7
+ # info          0 prev   6 next   8
+ # info          0 prev   7 next   9
+ # info          0 prev   8 next  -1

@@ -1,0 +1,60 @@
+
+ # list 0028FF04 head 00000000 tail 00000000 count   0
+
+ # list 0028FF04 head 00710DF8 tail 00710D98 count   2
+ # value        4 prev 00710D98 current 00710DF8 next 00710D98
+ # value       10 prev 00710DF8 current 00710D98 next 00710DF8
+
+ # list 0028FF04 head 00000000 tail 00000000 count   0
+
+ # list 0028FF04 head 00710D98 tail 00710D98 count   1
+ # value       20 prev 00710D98 current 00710D98 next 00710D98
+
+ # list 0028FF04 head 007110D8 tail 00710EE8 count   4
+ # value        3 prev 00710EE8 current 007110D8 next 00710E88
+ # value        1 prev 007110D8 current 00710E88 next 00710D98
+ # value       20 prev 00710E88 current 00710D98 next 00710EE8
+ # value        2 prev 00710D98 current 00710EE8 next 007110D8
+
+ # list 0028FF04 head 00000000 tail 00000000 count   0
+
+ # list 0028FF04 head 007110C0 tail 00710FE8 count   2
+ # value        5 prev 00710FE8 current 007110C0 next 00710FE8
+ # value        4 prev 007110C0 current 00710FE8 next 007110C0
+
+ # list 0028FF04 head 00710F88 tail 00710FE8 count   4
+ # value       20 prev 00710FE8 current 00710F88 next 00711048
+ # value       15 prev 00710F88 current 00711048 next 007110C0
+ # value        5 prev 00711048 current 007110C0 next 00710FE8
+ # value        4 prev 007110C0 current 00710FE8 next 00710F88
+
+ # list 0028FF04 head 00710FE8 tail 00710FE8 count   1
+ # value        4 prev 00710FE8 current 00710FE8 next 00710FE8
+
+ # list 0028FF04 head 00000000 tail 00000000 count   0
+
+ # list 0028FF04 head 00000000 tail 00000000 count   0
+
+ # list 0028FF04 head 00000000 tail 00000000 count  -1
+ # Error < got negative count > occured in: 
+ | file C:\Users\Lenovo\Documents\GitHub\safe-morning\HASH_V2\main.cpp
+ | function main
+ | line 95
+ | date 19:59:44 Nov 11 2018
+
+
+ # list 0028FF04 head 00000000 tail 00000000 count  -1
+ # Error < got invalid head ptr > occured in: 
+ | file C:\Users\Lenovo\Documents\GitHub\safe-morning\HASH_V2\main.cpp
+ | function main
+ | line 95
+ | date 19:59:44 Nov 11 2018
+
+
+ # list 0028FF04 head 00000000 tail 00000000 count  -1
+ # Error < got invalid tail ptr > occured in: 
+ | file C:\Users\Lenovo\Documents\GitHub\safe-morning\HASH_V2\main.cpp
+ | function main
+ | line 95
+ | date 19:59:44 Nov 11 2018
+
