@@ -28,13 +28,13 @@ char listDataCtor (list_data *ld)
 {
   assert (ld != NULL);
 
-  ld->value = (list_value )calloc (1,sizeof (*(ld->next)));
-  if ( ld->value == NULL) return ERR_MEM_PROBLEM;
+  ld->value = (list_value )calloc (1, sizeof ((ld->value)));
+  if (&(ld->value) == NULL) return ERR_MEM_PROBLEM;
 
-  ld->prev  = (list_data *)calloc (1,sizeof (*(ld->next)));
+  ld->prev  = (list_data *)calloc (1, sizeof (*(ld->prev)));
   if ( ld->prev == NULL) return ERR_MEM_PROBLEM;
 
-  ld->next  = (list_data *)calloc (1,sizeof (*(ld->next)));
+  ld->next  = (list_data *)calloc (1, sizeof (*(ld->next)));
   if ( ld->next == NULL) return ERR_MEM_PROBLEM;
 
   return ERR_NO_ERROR;
@@ -43,13 +43,7 @@ char listDataCtor (list_data *ld)
 char listDataDtor (list_data *ld)
 {
   assert (ld != NULL);
-  /*
-  free (&(ld->value));
-  ld->value = POISON_DESTRUCTED;
 
-  free (ld);
-  ld = POISON_DESTRUCTED;
-  */
   ld->value = POISON_DESTRUCTED;
   free (&(ld->value));
 
@@ -100,9 +94,14 @@ char listCtor (list *l)
 {
   assert (l != NULL);
 
-  l->head  = 0;
-  l->tail  = 0;
-  l->count = 0;
+  l->head  = (list_data *)calloc (1, sizeof (*(l->head)));
+  if ( l->head == NULL) return ERR_MEM_PROBLEM;
+
+  l->tail  = (list_data *)calloc (1, sizeof (*(l->tail)));
+  if ( l->tail == NULL) return ERR_MEM_PROBLEM;
+
+  l->count = (list_value )calloc (1, sizeof ((l->count)));
+  if (&(l->count) == NULL) return ERR_MEM_PROBLEM;
 
   return ERR_NO_ERROR;
 }
@@ -115,8 +114,10 @@ char listDtor (list *l)
 
   free (l->head);
   l->head  = POISON_DESTRUCTED;
+
   free (l->tail);
   l->tail  = POISON_DESTRUCTED;
+
   free (&(l->count));
   l->count = POISON_DESTRUCTED;
 

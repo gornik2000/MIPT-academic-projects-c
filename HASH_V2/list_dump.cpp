@@ -29,6 +29,7 @@ void errorDecoder (char error, int line,
           " | line %d\n"                                                \
           " | date %s %s\n\n"                                           \
           , errorDescr, fileName, funcName, line, __TIME__, __DATE__);
+  //assert (0);
 }
 
 char myListIsOk (list *l, int line, const char *funcName, const char* fileName)

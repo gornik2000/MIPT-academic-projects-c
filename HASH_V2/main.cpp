@@ -47,6 +47,7 @@ int main ()
   list l = {0};
   listPrint (&l);
   listCtor (&l);
+  listIsOk (&l);
   listErase (&l);
   listEmplaceFront (&l, 10 ,10);
   listPushFront (&l, 4);
