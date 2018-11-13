@@ -1,35 +1,35 @@
 
  # list 0028FF04 head 00000000 tail 00000000 count   0
 
- # list 0028FF04 head 003B0DF8 tail 003B0D98 count   2
- # value        4 prev 003B0D98 current 003B0DF8 next 003B0D98
- # value       10 prev 003B0DF8 current 003B0D98 next 003B0DF8
+ # list 0028FF04 head 00370DF8 tail 00370D98 count   2
+ # value        4 prev 00370D98 current 00370DF8 next 00370D98
+ # value       10 prev 00370DF8 current 00370D98 next 00370DF8
 
  # list 0028FF04 head 00000000 tail 00000000 count   0
 
- # list 0028FF04 head 003B0D98 tail 003B0D98 count   1
- # value       20 prev 003B0D98 current 003B0D98 next 003B0D98
+ # list 0028FF04 head 00370D98 tail 00370D98 count   1
+ # value       20 prev 00370D98 current 00370D98 next 00370D98
 
- # list 0028FF04 head 003B1030 tail 003B0EE8 count   4
- # value        3 prev 003B0EE8 current 003B1030 next 003B0E88
- # value        1 prev 003B1030 current 003B0E88 next 003B0D98
- # value       20 prev 003B0E88 current 003B0D98 next 003B0EE8
- # value        2 prev 003B0D98 current 003B0EE8 next 003B1030
+ # list 0028FF04 head 003710D8 tail 00370EE8 count   4
+ # value        3 prev 00370EE8 current 003710D8 next 00370E88
+ # value        1 prev 003710D8 current 00370E88 next 00370D98
+ # value       20 prev 00370E88 current 00370D98 next 00370EE8
+ # value        2 prev 00370D98 current 00370EE8 next 003710D8
 
  # list 0028FF04 head 00000000 tail 00000000 count   0
 
- # list 0028FF04 head 003B0F88 tail 003B10C0 count   2
- # value        5 prev 003B10C0 current 003B0F88 next 003B10C0
- # value        4 prev 003B0F88 current 003B10C0 next 003B0F88
+ # list 0028FF04 head 00370F40 tail 00370FE8 count   2
+ # value        5 prev 00370FE8 current 00370F40 next 00370FE8
+ # value        4 prev 00370F40 current 00370FE8 next 00370F40
 
- # list 0028FF04 head 003B1048 tail 003B10C0 count   4
- # value       20 prev 003B10C0 current 003B1048 next 003B0FD0
- # value       15 prev 003B1048 current 003B0FD0 next 003B0F88
- # value        5 prev 003B0FD0 current 003B0F88 next 003B10C0
- # value        4 prev 003B0F88 current 003B10C0 next 003B1048
+ # list 0028FF04 head 00370F88 tail 00370FE8 count   4
+ # value       20 prev 00370FE8 current 00370F88 next 00371048
+ # value       15 prev 00370F88 current 00371048 next 00370F40
+ # value        5 prev 00371048 current 00370F40 next 00370FE8
+ # value        4 prev 00370F40 current 00370FE8 next 00370F88
 
- # list 0028FF04 head 003B10C0 tail 003B10C0 count   1
- # value        4 prev 003B10C0 current 003B10C0 next 003B10C0
+ # list 0028FF04 head 00370FE8 tail 00370FE8 count   1
+ # value        4 prev 00370FE8 current 00370FE8 next 00370FE8
 
  # list 0028FF04 head 00000000 tail 00000000 count   0
 
@@ -40,17 +40,17 @@
  | file C:\Users\Lenovo\Documents\GitHub\safe-morning\HASH_V2\main.cpp
  | function main
  | line 95
- | date 20:05:23 Nov 11 2018
+ | date 13:45:48 Nov 13 2018
 
  # Error < got invalid head ptr > occured in: 
  | file C:\Users\Lenovo\Documents\GitHub\safe-morning\HASH_V2\main.cpp
  | function main
  | line 95
- | date 20:05:23 Nov 11 2018
+ | date 13:45:48 Nov 13 2018
 
  # Error < got invalid tail ptr > occured in: 
  | file C:\Users\Lenovo\Documents\GitHub\safe-morning\HASH_V2\main.cpp
  | function main
  | line 95
- | date 20:05:23 Nov 11 2018
+ | date 13:45:48 Nov 13 2018
 

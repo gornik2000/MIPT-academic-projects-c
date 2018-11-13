@@ -4,6 +4,7 @@ ERR_DEF (1 , NULL_PTR,      "< got NULL pointer >"     )
 ERR_DEF (2 , NEG_COUNT,     "< got negative count >"   )
 ERR_DEF (3 , INV_HEAD,      "< got invalid head ptr >" )
 ERR_DEF (4 , INV_TAIL,      "< got invalid tail ptr >" )
+ERR_DEF (5 , MEM_PROBLEM,   "< problems with memory >" )
 
 //ERR_DEF (3 , INVALID_COUNT, "< invalid count >"      )
 /*

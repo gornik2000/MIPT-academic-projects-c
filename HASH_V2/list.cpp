@@ -29,8 +29,15 @@ char listDataCtor (list_data *ld)
   assert (ld != NULL);
 
   ld->value = (list_value )calloc (1,sizeof (*(ld->next)));
+  if ( ld->value == NULL) return ERR_MEM_PROBLEM;
+
   ld->prev  = (list_data *)calloc (1,sizeof (*(ld->next)));
+  if ( ld->prev == NULL) return ERR_MEM_PROBLEM;
+
   ld->next  = (list_data *)calloc (1,sizeof (*(ld->next)));
+  if ( ld->next == NULL) return ERR_MEM_PROBLEM;
+
+  return ERR_NO_ERROR;
 }
 
 char listDataDtor (list_data *ld)
@@ -48,7 +55,6 @@ char listDataDtor (list_data *ld)
 
   free (ld);
   ld = POISON_DESTRUCTED;
-
 
   return ERR_NO_ERROR;
 }

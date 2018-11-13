@@ -8,7 +8,7 @@ typedef double elem_cpu;
 #include "disasm.cpp"
 #include "cpu.cpp"
 
-#define taskFac
+#define taskFact
 #ifdef  taskFact
   const char *CMD_FILE_NAME     = "Factorial.txt";
 #else

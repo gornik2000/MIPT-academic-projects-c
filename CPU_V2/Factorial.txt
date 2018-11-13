@@ -1,6 +1,8 @@
 ;-----FACTORIAL PRINTER------
 
-	push in					
+	push in	
+	pop r2
+	push r2
 	call :fact
 	out
 	mya
@@ -9,25 +11,21 @@
 ;----------------------------
 	
 :fact
+	;out
 	pop r1
-	push r1
+	push r2
 	push 1
 	jb :next
-		push 1
+		push r1
 		ret
 
-:next
-	push r1
-	
-:start_cycle
-	push r1
-	push 1
-	sub
-	pop r1
-	push r1
-	mul
-	
-	push r1
-	push 1
-	jb :start_cycle
+	:next
+		push r1
+		push r2
+		push 1
+		sub
+		pop r2
+		push r2
+		mul
+		call :fact
 		ret
