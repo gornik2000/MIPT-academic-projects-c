@@ -8,15 +8,16 @@
 const int POISON_DESTRUCTED = 0;
 
 /* which information will be in stack */
-typedef int list_value;
+typedef char *list_value;
+/* how this information should be inputed */
+#define VALUE_OUT "%8p"
 
 struct myListData
 {
-  list_value        value;
+  list_value       *value;
   struct myListData *prev;
   struct myListData *next;
 };
-
 typedef struct myListData list_data;
 
 char listDataCtor (list_data *ld);
@@ -28,14 +29,14 @@ char listDataCtor (list_data *ld)
 {
   assert (ld != NULL);
 
-  ld->value = (list_value )calloc (1, sizeof ((ld->value)));
-  if (&(ld->value) == NULL) return ERR_MEM_PROBLEM;
+  ld->value = (list_value *)calloc (1, sizeof (*(ld->value)));
+  if (ld->value == NULL) return ERR_MEM_PROBLEM;
 
-  ld->prev  = (list_data *)calloc (1, sizeof (*(ld->prev)));
-  if ( ld->prev == NULL) return ERR_MEM_PROBLEM;
+  ld->prev  = (list_data  *)calloc (1, sizeof (*(ld->prev)));
+  if (ld->prev == NULL)  return ERR_MEM_PROBLEM;
 
-  ld->next  = (list_data *)calloc (1, sizeof (*(ld->next)));
-  if ( ld->next == NULL) return ERR_MEM_PROBLEM;
+  ld->next  = (list_data  *)calloc (1, sizeof (*(ld->next)));
+  if (ld->next == NULL)  return ERR_MEM_PROBLEM;
 
   return ERR_NO_ERROR;
 }
@@ -44,11 +45,12 @@ char listDataDtor (list_data *ld)
 {
   assert (ld != NULL);
 
-  ld->value = POISON_DESTRUCTED;
-  free (&(ld->value));
+  *(ld->value) = POISON_DESTRUCTED;
+  free (ld->value);
+  (ld->value) = NULL;
 
   free (ld);
-  ld = POISON_DESTRUCTED;
+  ld = NULL;
 
   return ERR_NO_ERROR;
 }
@@ -65,8 +67,8 @@ struct myList
 
 typedef struct myList list;
 
-char listCtor (list *l);
-char listDtor (list *l);
+list *listCtor (void);
+list *listDtor (list *l);
 
 list_data *listFront (list *l);
 list_data *listBack  (list *l);
@@ -87,79 +89,49 @@ char listPushBack  (list *l, list_value value);
 char listRemove (list *l, int num);
 char listErase  (list *l);
 
+char listPrint  (list *l);
+
 #include "list_dump.cpp"
 //-----------------------------------------------------------------------------
 
-char listCtor (list *l)
+list *listCtor (void)
 {
+  list *l = (list *)calloc (1, sizeof (*l));
+  printf (" list %p \n", l);
   assert (l != NULL);
 
-  l->head  = (list_data *)calloc (1, sizeof (*(l->head)));
-  if ( l->head == NULL) return ERR_MEM_PROBLEM;
+  l->head  = 0;
+  l->tail  = 0;
+  l->count = 0;
 
-  l->tail  = (list_data *)calloc (1, sizeof (*(l->tail)));
-  if ( l->tail == NULL) return ERR_MEM_PROBLEM;
-
-  l->count = (list_value )calloc (1, sizeof ((l->count)));
-  if (&(l->count) == NULL) return ERR_MEM_PROBLEM;
-
-  return ERR_NO_ERROR;
+  return l;
 }
 
-char listDtor (list *l)
+list *listDtor (list *l)
 {
   assert (l != NULL);
 
   listErase (l);
 
-  free (l->head);
-  l->head  = POISON_DESTRUCTED;
-
-  free (l->tail);
-  l->tail  = POISON_DESTRUCTED;
-
-  free (&(l->count));
+  l->head  = NULL;
+  l->tail  = NULL;
   l->count = POISON_DESTRUCTED;
 
-  return ERR_NO_ERROR;
-}
+  free (l);
+  l = NULL;
 
-list_data *listFront (list *l)
-{
-  assert (l != NULL);
-
-  return (l->head);
-}
-
-list_data *listBack  (list *l)
-{
-  assert (l != NULL);
-
-  return (l->tail);
-}
-
-list_data *listNext     (list_data *ld)
-{
-  assert (ld != NULL);
-
-  return ld->next;
-}
-
-list_data *listPrevious (list_data *ld)
-{
-  assert (ld != NULL);
-
-  return ld->prev;
+  return l;
 }
 
 list_data *listFindValue (list *l, list_value value)
 {
   assert (l != NULL);
+  if (l->count == 0 ) return 0;
 
   list_data *elem = l->head;
   for (int i = 0; i < l->count; i++)
   {
-    if (elem->value == value)
+    if (*(elem->value) == value)
       return elem;
     elem = elem->next;
   }
@@ -168,6 +140,7 @@ list_data *listFindValue (list *l, list_value value)
 list_data *listFindNum   (list *l, int num)
 {
   assert (l != NULL);
+  if (l->count == 0 ) return 0;
 
   list_data *elem = l->head;
   if (num > 0)
@@ -200,7 +173,7 @@ char listEmplaceFront (list *l, list_value value, int num)
   listDataCtor (elem);
 
   elem->next  = currentElem;
-  elem->value = value;
+  *(elem->value) = value;
   elem->prev  = currentElem->prev;
 
   if (elem->next == l->head)
@@ -231,7 +204,7 @@ char listEmplaceBack  (list *l, list_value value, int num)
   listDataCtor (elem);
 
   elem->next  = currentElem->next;
-  elem->value = value;
+  *(elem->value) = value;
   elem->prev  = currentElem;
 
   if (elem->prev == l->tail)
@@ -254,7 +227,7 @@ char listPushFirst (list *l, list_value value)
   listDataCtor (elem);
 
   elem->next  = elem;
-  elem->value = value;
+  *(elem->value) = value;
   elem->prev  = elem;
 
   (l->count) ++;
@@ -277,7 +250,7 @@ char listPushFront (list *l, list_value value)
   listDataCtor (elem);
 
   elem->next  = l->head;
-  elem->value = value;
+  *(elem->value) = value;
   elem->prev  = l->tail;
 
   (elem->next)->prev = elem;
@@ -302,7 +275,7 @@ char listPushBack  (list *l, list_value value)
   listDataCtor (elem);
 
   elem->next  = l->head;
-  elem->value = value;
+  *(elem->value) = value;
   elem->prev  = l->tail;
 
   (elem->prev)->next = elem;
@@ -318,9 +291,7 @@ char listRemove (list *l, int num)
 {
   assert (l != NULL);
 
-  list_data *elem = listFindNum (l, num);
-
-  if (l->count == 0)
+  if (l->count <= 0)
   {
     return ERR_NEG_COUNT;
   }
@@ -330,6 +301,7 @@ char listRemove (list *l, int num)
     return listErase (l);
   }
 
+  list_data *elem = listFindNum (l, num);
   (elem->next)->prev = (elem->prev);
   (elem->prev)->next = (elem->next);
 
@@ -343,12 +315,7 @@ char listRemove (list *l, int num)
     l->tail = elem->prev;
   }
   listDataDtor (elem);
-  /*
-  elem->value = POISON_DESTRUCTED;
-  free (&(elem->value));
-  free (elem);
-  elem = POISON_DESTRUCTED;
-  */
+
   l->count --;
 
   return ERR_NO_ERROR;
@@ -360,16 +327,10 @@ char listErase  (list *l)
 
   list_data *elem = l->head;
 
-  for (int i = 0; i < l->count; i ++)
+  for (int i = 1; i < l->count; i++)
   {
     elem = elem->next;
     listDataDtor (elem->prev);
-    /*
-    elem->value = POISON_DESTRUCTED;
-    free (&(elem->value));
-
-    elem = elem->next;
-    free (elem->prev); */
   }
 
   l->count = 0;
@@ -378,5 +339,50 @@ char listErase  (list *l)
 
   return ERR_NO_ERROR;
 }
+
+char listPrint (list *l)
+{
+  assert (l != NULL);
+
+  fprintf (LOG_FILE, "\n # list %8p head %8p tail %8p count %3d\n",
+                              l, l->head, l->tail, l->count);
+
+  list_data *elem = l->head;
+  for (int i = 0; i < l->count; i++)
+  {
+    fprintf (LOG_FILE, " # value "VALUE_OUT" prev %8p current %8p next %8p\n",
+                   *(elem->value),     elem->prev, elem,    elem->next);
+    elem = elem->next;
+  }
+}
+
+list_data *listFront (list *l)
+{
+  assert (l != NULL);
+
+  return l->head;
+}
+
+list_data *listBack  (list *l)
+{
+  assert (l != NULL);
+
+  return l->tail;
+}
+
+list_data *listNext     (list_data *ld)
+{
+  assert (ld != NULL);
+
+  return ld->next;
+}
+
+list_data *listPrevious (list_data *ld)
+{
+  assert (ld != NULL);
+
+  return ld->prev;
+}
+
 
 //----------------------------------------------------------------------------

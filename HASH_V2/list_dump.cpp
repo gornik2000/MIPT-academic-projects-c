@@ -1,15 +1,20 @@
 #include <stdio.h>
 
+//-----------------------------------------------------------------------------
+
 const char *LOG_FILE_NAME =  "list_logs.txt";
 FILE *LOG_FILE = fopen (LOG_FILE_NAME, "w");
 
+//-----------------------------------------------------------------------------
+
 char listVerification (list *l);
-char listPrint  (list *l);
 char myListIsOk (list *l, int line, const char *funcName, const char* fileName);
 void errorDecoder (char error, int line,
                    const char *funcName, const char *fileName);
 
 #define listIsOk(l) myListIsOk ((l), __LINE__, __func__, __FILE__);
+
+//-----------------------------------------------------------------------------
 
 void errorDecoder (char error, int line,
                    const char *funcName, const char *fileName)
@@ -29,41 +34,36 @@ void errorDecoder (char error, int line,
           " | line %d\n"                                                \
           " | date %s %s\n\n"                                           \
           , errorDescr, fileName, funcName, line, __TIME__, __DATE__);
-  //assert (0);
 }
 
 char myListIsOk (list *l, int line, const char *funcName, const char* fileName)
 {
+  assert (l != NULL);
   listPrint (l);
 
+  fprintf (LOG_FILE, " #-------------------------------------------------\n\n");
   if (l->count < 0)
   {
     errorDecoder (ERR_NEG_COUNT, line, funcName, fileName);
   }
 
-  if (l->head == 0)
+  if (l->head == NULL)
   {
     errorDecoder (ERR_INV_HEAD,  line, funcName, fileName);
   }
 
-  if (l->tail == 0)
+  if (l->tail == NULL)
   {
     errorDecoder (ERR_INV_TAIL,  line, funcName, fileName);
   }
+  fprintf (LOG_FILE, " #--------------------------------------------------\n");
+
+  return ERR_NO_ERROR;
 }
 
-char listPrint (list *l)
+char listVerification (list *l)
 {
   assert (l != NULL);
 
-  fprintf (LOG_FILE, "\n # list %8p head %8p tail %8p count %3d\n",
-                              l, l->head, l->tail, l->count);
-
-  list_data *elem = l->head;
-  for (int i = 0; i < l->count; i ++)
-  {
-    fprintf (LOG_FILE, " # value %8d prev %8p current %8p next %8p\n",
-                     elem->value, elem->prev, elem, elem->next);
-    elem = elem->next;
-  }
+  return ERR_NO_ERROR;
 }
