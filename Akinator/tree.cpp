@@ -81,7 +81,6 @@ tree *treeCtor (void)
 
 node *treeSubDtor  (node *n)
 {
-  //node *left = n->leftChild;
   if (n->leftChild == NULL && n->rightChild == NULL)
   {
     free (n);
@@ -116,8 +115,9 @@ node *treeSubDtor  (node *n)
 
 tree *treeDtor (tree *t)
 {
-  t->edgeCount = -1;
+  assert (t != NULL);
 
+  t->edgeCount = -1;
   t->rootNode = treeSubDtor (t->rootNode);
 
   free (t);
@@ -126,26 +126,25 @@ tree *treeDtor (tree *t)
   return t;
 }
 
-/*
-char treeAddData (tree *t, node_data data)
+node *treeFind    (tree *t, node_data data)
 {
-  if (t->edgeCount == 0)
-  {
-    *t->rootNode->key = data;
-    t->edgeCount += 1;
-    return 0;
-  }
-} */
+  assert (t != NULL);
 
-//-----------------------------------------------------------------------------
-/*
-int main1 ()
+  return treeSubFind (t->rootNode, data);
+}
+
+node *treeSubFind (node *n, node_data data)
 {
-  node *n = nodeCtor ();
-  printf ("node %p key %p left %p parent %p right %p\n", n, n->key, n->leftChild, n->parent, n->rightChild);
-  n = nodeDtor (n);
-  tree *t = treeCtor ();
-  treeAddData (t, 15);
-  printf (" tree data %d ", *t->rootNode->key);
-  t = treeDtor (t);
-} */
+  //printf ("1");
+  if (n == NULL)
+  {
+    printf (" 0 ");
+    return n;
+  }
+  if (strcmp (*n->key, data) == 0)
+  {
+    printf (" 1 ");
+    return n;
+  }
+  return max (treeSubFind (n->leftChild,  data), treeSubFind (n->rightChild, data));
+}

@@ -62,6 +62,7 @@ char akinator (const char *dataFileName)
   char answer = 0;
   node *currentNode = akinatorTree->rootNode;
   node *lastNode = NULL;
+
   while (currentNode != NULL)
   {
     if ((currentNode->leftChild && currentNode->rightChild) == NULL)
@@ -143,6 +144,7 @@ char akinator (const char *dataFileName)
 
   treeTofile (akinatorTree, dataFileName);
 
+  //printf ("- %s -", *treeFind (akinatorTree, "a dog")->key);
   //system ("cls");
 
   free (text[0]);
