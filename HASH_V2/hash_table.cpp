@@ -8,20 +8,20 @@ FILE *MAP_LOG_FILE = fopen (MAP_LOG_FILE_NAME, "w");
 
 //-----------------------------------------------------------------------------
 
-const int MAX_MAP_SIZE = 256;
+const int MAX_MAP_SIZE = 10000;
 
 struct my_map
 {
   list **data;
-  //int *elemSize;
   int maxSize;
+  int (*hash)(char *, int);
 };
 typedef struct my_map map;
 
-map *mapCtor (void);
+map *mapCtor (int (*hashFunction)(char *, int));
 map *mapDtor (map *m);
 
-char mapAdd    (map *m, list_value elem, int num);
+char mapAdd    (map *m, list_value elem);
 char mapDelete (map *m, int num);
 char mapErase  (map *m);
 
@@ -30,23 +30,19 @@ char myMapIsOk (map *m, int line, const char *funcName, const char* fileName);
 
 char mapToFile (map *m, FILE *file);
 
-char mapVerification (map *m);
-
 #define mapIsOk(l) myMapIsOk ((m), __LINE__, __func__, __FILE__);
 
 //-----------------------------------------------------------------------------
 
-map *mapCtor (void)
+/* constructor */
+map *mapCtor (int (*hashFunction)(char *, int))
 {
   map *m = (map *)calloc (1, sizeof (*m));
-
-  //m->elemSize = (list_value *)calloc (MAX_MAP_SIZE, sizeof (*(m->elemSize)));
-  //printf (" map size %p \n", m->elemSize);
-
   m->maxSize = MAX_MAP_SIZE;
 
   m->data = (list **)calloc (MAX_MAP_SIZE, sizeof (*(m->data)));
-  printf (" map data %p \n", m->data);
+
+  m->hash = hashFunction;
 
   for (int i = 0; i < m->maxSize; i++)
   {
@@ -56,6 +52,7 @@ map *mapCtor (void)
   return m;
 }
 
+/* destructor */
 map *mapDtor (map *m)
 {
   assert (m != NULL);
@@ -63,15 +60,13 @@ map *mapDtor (map *m)
   for (int i = 0; i < m->maxSize; i++)
   {
     listDtor ((m->data)[i]);
-    //(m->elemSize)[i] = -1;
   }
   m->maxSize = -1;
 
+  m->hash = NULL;
+
   free (m->data);
   m->data = NULL;
-
-  //free (m->elemSize);
-  //m->elemSize = NULL;
 
   free (m);
   m = NULL;
@@ -79,11 +74,12 @@ map *mapDtor (map *m)
   return m;
 }
 
-char mapAdd    (map *m, list_value elem, int num)
+/* add element to map's list */
+char mapAdd    (map *m, list_value elem)
 {
   assert (m != NULL);
 
-  //printf (" SIZE %p", (m->elemSize));
+  int num = m->hash (elem, m->maxSize);
 
   if ((m->data)[num]->count < 0)
   {
@@ -95,6 +91,7 @@ char mapAdd    (map *m, list_value elem, int num)
   return ERR_NO_ERROR;
 }
 
+/* delete element (list) from stack */
 char mapDelete (map *m, int num)
 {
   assert (m != NULL);
@@ -109,6 +106,7 @@ char mapDelete (map *m, int num)
   return ERR_NO_ERROR;
 }
 
+/* erase map data */
 char mapErase  (map *m)
 {
   assert (m != NULL);
@@ -121,11 +119,12 @@ char mapErase  (map *m)
   return ERR_NO_ERROR;
 }
 
+/* print map data to file */
 char mapPrint (map *m)
 {
   assert (m != NULL);
 
-  fprintf (LOG_FILE, "\n map: \n");
+  fprintf (LOG_FILE, "\n map: max size %8d\n", m->maxSize);
   for (int i = 0; i < m->maxSize; i++)
   {
     listPrint ((m->data)[i]);
@@ -134,6 +133,7 @@ char mapPrint (map *m)
   return ERR_NO_ERROR;
 }
 
+/* checks if map is correct */
 char myMapIsOk (map *m, int line, const char *funcName, const char* fileName)
 {
   assert (m != NULL);
@@ -144,11 +144,6 @@ char myMapIsOk (map *m, int line, const char *funcName, const char* fileName)
     errorDecoder (ERR_INV_SIZE, line, funcName, fileName);
   }
 
-  /* if (m->elemSize == NULL)
-  {
-    errorDecoder (ERR_NULL_PTR,  line, funcName, fileName);
-  } */
-
   if (m->data == NULL)
   {
     errorDecoder (ERR_NULL_PTR,  line, funcName, fileName);
@@ -158,18 +153,12 @@ char myMapIsOk (map *m, int line, const char *funcName, const char* fileName)
   return ERR_NO_ERROR;
 }
 
+/* create file for graphics from map */
 char mapToFile (map *m, FILE *file)
 {
   for (int i = 0; i < m->maxSize; i++)
   {
-    fprintf (file, "%d\n", (m->data)[i]->count);
+    fprintf (file, "%d\t%d\n", i, (m->data)[i]->count);
   }
-  fprintf (file, "\n");
 }
 
-char mapVerification (map *m)
-{
-  assert (m != NULL);
-
-  return ERR_NO_ERROR;
-}

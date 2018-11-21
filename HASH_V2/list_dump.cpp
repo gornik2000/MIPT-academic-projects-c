@@ -7,7 +7,7 @@ FILE *LOG_FILE = fopen (LOG_FILE_NAME, "w");
 
 //-----------------------------------------------------------------------------
 
-char listVerification (list *l);
+char listPrint  (list *l);
 char myListIsOk (list *l, int line, const char *funcName, const char* fileName);
 void errorDecoder (char error, int line,
                    const char *funcName, const char *fileName);
@@ -15,7 +15,7 @@ void errorDecoder (char error, int line,
 #define listIsOk(l) myListIsOk ((l), __LINE__, __func__, __FILE__);
 
 //-----------------------------------------------------------------------------
-
+/* decodes errror */
 void errorDecoder (char error, int line,
                    const char *funcName, const char *fileName)
 {
@@ -36,6 +36,7 @@ void errorDecoder (char error, int line,
           , errorDescr, fileName, funcName, line, __TIME__, __DATE__);
 }
 
+/* checks list correction */
 char myListIsOk (list *l, int line, const char *funcName, const char* fileName)
 {
   assert (l != NULL);
@@ -61,9 +62,19 @@ char myListIsOk (list *l, int line, const char *funcName, const char* fileName)
   return ERR_NO_ERROR;
 }
 
-char listVerification (list *l)
+/* print list data */
+char listPrint (list *l)
 {
   assert (l != NULL);
 
-  return ERR_NO_ERROR;
+  fprintf (LOG_FILE, "\n # list %8p head %8p tail %8p count %3d\n",
+                              l, l->head, l->tail, l->count);
+
+  list_data *elem = l->head;
+  for (int i = 0; i < l->count; i++)
+  {
+    fprintf (LOG_FILE, " # value "VALUE_OUT" prev %8p current %8p next %8p\n",
+                   *(elem->value),     elem->prev, elem,    elem->next);
+    elem = elem->next;
+  }
 }

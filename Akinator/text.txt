@@ -1,0 +1,26 @@
+is an animal
+{
+barks
+{
+a dog
+}
+{
+is big
+{
+can swim
+{
+a whale
+}
+{
+an elephant
+}
+}
+{
+a cat
+}
+}
+}
+{
+a plane
+}
+
