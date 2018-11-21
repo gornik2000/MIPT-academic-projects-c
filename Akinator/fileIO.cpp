@@ -12,16 +12,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-int fileSize (FILE *file);
+void tabFprint (FILE *file, int tabCount);
+char *getNonSpace (char *str);
 
+int fileSize (FILE *file);
 int textInLines (char **text, int textSize);
 
 int foutputText (char **text, const char *name = "out.txt");
 
 char **createTextCopy (char **text, int lines);
-
 char **createText (char *buf, int lines, int textSize);
-
 char **createTextFromFile (const char *fileName, int *currentFileSize = 0, \
                                                  int *currentFileLines = 0);
 
@@ -245,4 +245,20 @@ char **createTextFromFile (const char *fileName, int *currentFileSize, \
 
   /* returns array of line pointers, connecting buff and text */
   return createText (buf, *currentFileLines, *currentFileSize);
+}
+
+char *getNonSpace (char *str)
+{
+  assert (str != NULL);
+
+  for (; *str == ' ' || *str == '\t'; str++);
+  return str;
+}
+
+void tabFprint (FILE *file, int tabCount)
+{
+  assert (file != NULL);
+
+  for (int i = 0; i < tabCount; i++)
+    fputc ('\t', file);
 }

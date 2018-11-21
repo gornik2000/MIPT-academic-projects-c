@@ -13,6 +13,8 @@ struct my_node
   struct my_node *leftChild;
   struct my_node *parent;
   struct my_node *rightChild;
+
+  int deepness;
 };
 
 typedef struct my_node node;
@@ -30,6 +32,8 @@ node *nodeCtor (void)
   n->leftChild  = NULL;
   n->parent     = NULL;
   n->rightChild = NULL;
+
+  n->deepness   = 0;
   return n;
 }
 
@@ -43,6 +47,8 @@ node *nodeDtor (node *n)
   n->leftChild  = NULL;
   n->parent     = NULL;
   n->rightChild = NULL;
+
+  n->deepness   = 0;
 
   free (n);
   n = NULL;
@@ -66,6 +72,11 @@ node *treeSubDtor (node *n);
 
 node *treeFind    (tree *t, node_data data);
 node *treeSubFind (node *n, node_data data);
+
+char *nodePrintToRoot   (node *n);
+char *nodePrintLeafs    (node *n);
+char *nodePrintNonLeafs (node *n);
+char *nodesPrintHistory (node *n1, node *n2);
 
 //char treeAddData (tree *t, node_data data);
 
@@ -138,13 +149,64 @@ node *treeSubFind (node *n, node_data data)
   //printf ("1");
   if (n == NULL)
   {
-    printf (" 0 ");
     return n;
   }
   if (strcmp (*n->key, data) == 0)
   {
-    printf (" 1 ");
     return n;
   }
   return max (treeSubFind (n->leftChild,  data), treeSubFind (n->rightChild, data));
+}
+
+char *nodePrintToRoot   (node *n)
+{
+  if (n == NULL)
+  {
+    printf (" # ERROR! Incorrect input");
+    return 0;
+  }
+
+  node_data *data = n->key;
+  while (n->parent != NULL)
+  {
+    if (n == n->parent->leftChild)
+      printf (" - %s %s\n", *data, *n->parent->key);
+    if (n == n->parent->rightChild)
+      printf (" - not %s %s\n", *data, *n->parent->key);
+    n = n->parent;
+  }
+  return 0;
+}
+
+char *nodePrintLeafs    (node *n)
+{
+  if (n != NULL)
+  {
+    if (n->leftChild  != NULL)
+      nodePrintLeafs (n->leftChild);
+    if (n->rightChild != NULL)
+      nodePrintLeafs (n->rightChild);
+    if (n->leftChild == NULL && n->rightChild == NULL)
+      printf ("- %s\n", *n->key);
+  }
+  return 0;
+}
+
+char *nodePrintNonLeafs (node *n)
+{
+  if (n != NULL)
+  {
+    if (n->leftChild  != NULL)
+      nodePrintNonLeafs (n->leftChild);
+    if (n->rightChild != NULL)
+      nodePrintNonLeafs (n->rightChild);
+    if (n->leftChild != NULL && n->rightChild != NULL)
+      printf ("- %s\n", *n->key);
+  }
+  return 0;
+}
+
+char *nodesPrintHistory (node *n1, node *n2)
+{
+  ;
 }

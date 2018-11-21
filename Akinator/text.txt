@@ -1,26 +1,50 @@
 is an animal
 {
-barks
-{
-a dog
+	barks
+	{
+		a dog
+	}
+	{
+		is big
+		{
+			can swim
+			{
+				a whale
+			}
+			{
+				an elephant
+			}
+		}
+		{
+		roams
+		{
+a mouse
+		}
+		{
+			a cat
+		}
+		}
+	}
 }
 {
-is big
-{
-can swim
-{
-a whale
-}
-{
-an elephant
-}
-}
-{
-a cat
-}
-}
-}
-{
-a plane
+	rides on road
+	{
+		has two wheels
+		{
+			a bike
+		}
+		{
+			a car
+		}
+	}
+	{
+		can be readen
+		{
+			a book
+		}
+		{
+			a plane
+		}
+	}
 }
 
