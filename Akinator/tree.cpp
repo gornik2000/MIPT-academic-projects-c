@@ -162,7 +162,7 @@ char *nodePrintToRoot   (node *n)
 {
   if (n == NULL)
   {
-    printf (" # ERROR! Incorrect input");
+    printf (" # ERROR! Incorrect input\n");
     return 0;
   }
 
@@ -208,5 +208,48 @@ char *nodePrintNonLeafs (node *n)
 
 char *nodesPrintHistory (node *n1, node *n2)
 {
-  ;
+  if (n1 == NULL || n2 == NULL)
+  {
+    printf (" # ERROR! Incorrect input\n");
+    return 0;
+  }
+
+  int deep1 = n1->deepness;
+  int deep2 = n2->deepness;
+
+  n1 = n1->parent;
+  n2 = n2->parent;
+
+  if (deep1 > deep2)
+    for (int i = 0; i < deep1 - deep2; i++)
+      n1 = n1->parent;
+  if (deep2 > deep1)
+    for (int i = 0; i < deep2 - deep1; i++)
+      n2 = n2->parent;
+
+  while (n1->parent != n2->parent)
+  {
+    n1 = n1->parent;
+    n2 = n2->parent;
+  }
+  /* difference */
+  if (n1 == n1->parent->leftChild)
+    printf (" - first object %s\n",      *n1->parent->key);
+  if (n1 == n1->parent->rightChild)
+    printf (" - first object not %s\n",  *n1->parent->key);
+  if (n2 == n2->parent->leftChild)
+    printf (" - second object %s\n",     *n2->parent->key);
+  if (n2 == n2->parent->rightChild)
+    printf (" - second object not %s\n", *n2->parent->key);
+
+  n1 = n1->parent;
+  /* commons */
+  while (n1->parent != NULL)
+  {
+    if (n1 == n1->parent->leftChild)
+      printf (" - each object %s\n",     *n1->parent->key);
+    if (n1 == n1->parent->rightChild)
+      printf (" - each object not %s\n", *n1->parent->key);
+    n1 = n1->parent;
+  }
 }

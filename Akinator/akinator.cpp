@@ -8,10 +8,11 @@
 typedef char *tree_data;
 #include "tree.cpp"
 
-#define speak(s) system ("balcon -n \"Zira\" -t \""s"\" -s 5 -v 100");
 //-----------------------------------------------------------------------------
 
 const int MAX_FILE_STR_LINE = 256;
+
+void speak (char* str);
 
 char akinator   (const char *dataFileName = "new.txt");
 char akinatorDialogue (tree *akinatorTree);
@@ -48,10 +49,6 @@ char akinator (const char *dataFileName)
     printf (" # ERROR! Inputted incorrect data: %c \n", mode);
     return 3;
   }
-  system ("cls");
-  speak  ("Imagine an object and i will guess it. Ready? Go!");
-  printf (" # Imagine an object and i will guess it. Ready? Go!\n\n\n");
-
   tree *akinatorTree = treeCtor ();
   int lines = 0;
   int size  = 0;
@@ -140,6 +137,10 @@ char akinatorExtra    (tree *akinatorTree)
 
 char akinatorDialogue (tree *akinatorTree)
 {
+  system ("cls");
+  speak  ("Imagine an object and i will guess it. Ready? Go!");
+  printf (" # Imagine an object and i will guess it. Ready? Go!\n\n\n");
+
   char answer = 0;
   node *currentNode = akinatorTree->rootNode;
   node *lastNode    = NULL;
@@ -149,7 +150,7 @@ char akinatorDialogue (tree *akinatorTree)
     if ((currentNode->leftChild && currentNode->rightChild) == NULL)
     {
       speak  ("You guessed");
-      //speak  (*currentNode->key);
+      speak  (getNonSpace(*currentNode->key));
       printf (" # You guessed %s?\n", getNonSpace(*currentNode->key));
       printf ("\t  1 - 0\n"
               "\tYes - No\n");
@@ -157,7 +158,7 @@ char akinatorDialogue (tree *akinatorTree)
     else
     {
       speak  ("It");
-      //speak  (*currentNode->key);
+      speak  (getNonSpace(*currentNode->key));
       printf (" # It %s?\n", getNonSpace(*currentNode->key));
       printf ("\t  1 - 0\n"
               "\tYes - No\n");
@@ -185,7 +186,6 @@ char akinatorDialogue (tree *akinatorTree)
     printf (" # GG EZ\n");
   }
 
-
   /* adding new elements */
   if (answer == '0')
   {
@@ -202,11 +202,12 @@ char akinatorDialogue (tree *akinatorTree)
             " [It] ");
     char *par = (char *)calloc(MAX_FILE_STR_LINE, sizeof (*par));
     gets (par);
+    printf ("- %s\n", par);
 
     node *newNode = nodeCtor ();
     node *newObj  = nodeCtor ();
 
-    if      (lastNode->parent->leftChild == lastNode)
+    if      (lastNode->parent->leftChild  == lastNode)
       lastNode->parent->leftChild  = newNode;
     else if (lastNode->parent->rightChild == lastNode)
       lastNode->parent->rightChild = newNode;
@@ -214,11 +215,11 @@ char akinatorDialogue (tree *akinatorTree)
     newNode->parent     = lastNode->parent;
     newNode->rightChild = lastNode;
     newNode->leftChild  = newObj;
-    newNode->key        = &par;
+    *newNode->key       = par;
     newNode->deepness   = newNode->parent->deepness + 1;
 
     newObj->parent   = newNode;
-    newObj->key      = &obj;
+    *newObj->key      = obj;
     newObj->deepness = newObj->parent->deepness + 1;
 
     lastNode->parent = newNode;
@@ -310,4 +311,14 @@ char subTreeToFile (node *n, FILE *file)
   }
 }
 
+void speak (char* str)
+{
+  char* speakStr = (char*)calloc (MAX_FILE_STR_LINE, sizeof (*speakStr));
+
+  strcat (speakStr, "balcon -n \"Zira\" -t \"");
+  strcat (speakStr, str);
+  strcat (speakStr, "\" -s 5 -v 100");
+
+  system (speakStr);
+}
 //-----------------------------------------------------------------------------

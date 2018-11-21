@@ -1,8 +1,21 @@
+
 is an animal
 {
 	barks
 	{
-		a dog
+		screams
+		{
+			a fox
+		}
+		{
+			is small
+			{
+				a puppy
+			}
+			{
+				a dog
+			}
+		}
 	}
 	{
 		is big
@@ -46,10 +59,22 @@ is an animal
 	{
 		can be readen
 		{
+			has pictures
+			{
+				a magazine
+			}
+			{
 			a book
+			}
 		}
 		{
-			a plane
+			stays on earth
+			{
+				a house
+			}
+			{
+				a plane
+			}
 		}
 	}
 }
