@@ -9,10 +9,7 @@ typedef char *tree_data;
 #include "tree.cpp"
 
 //-----------------------------------------------------------------------------
-
 const int MAX_FILE_STR_LINE = 256;
-
-void speak (char* str);
 
 char akinator   (const char *dataFileName = "new.txt");
 char akinatorDialogue (tree *akinatorTree);
@@ -22,31 +19,36 @@ char textToTree (char **text, tree *t, int lines);
 char treeTofile (tree *t, const char *fileName);
 char subTreeToFile (node *n, FILE *file);
 
+#ifdef MUTE
+  #define speak(a) ;
+#else
+  #include "speak.cpp"
+#endif // MUTE
 //-----------------------------------------------------------------------------
 
 char akinator (const char *dataFileName)
 {
   assert (dataFileName != NULL);
 
-  printf (" # AKINATOR v0.5\n\n"
+  printf (" # AKINATOR v1.7\n\n"
           " # Would you like to play with me?\n"
           "\t  1 - 0  - 2\n"
           "\tYes - No - Extra\n");
   speak  ("Would you like to play with me?");
 
-  char mode = getchar ();
-  getchar ();
+  char  mod[MAX_FILE_STR_LINE] = {};
+  gets (mode);
 
-  if (mode == '0')
+  if (*mode == '0')
   {
     speak  ("Thanks for patience");
     printf (" # Thanks for patience \n");
     return 0;
   }
-  if (mode != '1' && mode != '2')
+  if (*mode != '1' && *mode != '2')
   {
     speak  ("ERROR! Inputted incorrect data");
-    printf (" # ERROR! Inputted incorrect data: %c \n", mode);
+    printf (" # ERROR! Inputted incorrect data: %c \n", *mode);
     return 3;
   }
   tree *akinatorTree = treeCtor ();
@@ -56,7 +58,7 @@ char akinator (const char *dataFileName)
 
   textToTree  (text, akinatorTree, lines);
 
-  if (mode == '2')
+  if (*mode == '2')
   {
     akinatorExtra (akinatorTree);
     return 2;
@@ -80,17 +82,16 @@ char akinator (const char *dataFileName)
 
 char akinatorExtra    (tree *akinatorTree)
 {
-  char action = 1;
-  while (action != 0)
+  char action[MAX_FILE_STR_LINE] = {0};
+  while (action != NULL)
   {
     speak  ("What information do you need?");
     printf (" # What information do you need?\n");
     printf (" all pars - all objs - obj description - obj cmp - exit\n"
             "     p    -     o    -     d           -     c   - e\n");
-    action = getchar ();
-    getchar ();
 
-    switch (action)
+    gets    (action);
+    switch (*action)
     {
       case 'p' :
         nodePrintNonLeafs (akinatorTree->rootNode);
@@ -128,9 +129,10 @@ char akinatorExtra    (tree *akinatorTree)
         return 0;
       default  :
         speak  ("ERROR! Inputted incorrect data:");
-        printf (" # ERROR! Inputted incorrect data: %c\n", action);
+        printf (" # ERROR! Inputted incorrect data: %c\n", *action);
         break;
     }
+    printf ("\n");
   }
   return 0;
 }
@@ -141,7 +143,7 @@ char akinatorDialogue (tree *akinatorTree)
   speak  ("Imagine an object and i will guess it. Ready? Go!");
   printf (" # Imagine an object and i will guess it. Ready? Go!\n\n\n");
 
-  char answer = 0;
+  char answer[MAX_FILE_STR_LINE] = {0};
   node *currentNode = akinatorTree->rootNode;
   node *lastNode    = NULL;
 
@@ -164,15 +166,14 @@ char akinatorDialogue (tree *akinatorTree)
               "\tYes - No\n");
     }
 
-    answer = getchar ();
-    getchar ();
+    gets (answer);
 
-    if (answer == '1')
+    if (*answer == '1')
     {
       lastNode    = currentNode;
       currentNode = currentNode->leftChild;
     }
-    if (answer == '0')
+    if (*answer == '0')
     {
       lastNode    = currentNode;
       currentNode = currentNode->rightChild;
@@ -180,14 +181,14 @@ char akinatorDialogue (tree *akinatorTree)
   }
 
   /* end of guess part */
-  if (answer == '1')
+  if (*answer == '1')
   {
     speak  ("GG EZ");
     printf (" # GG EZ\n");
   }
 
   /* adding new elements */
-  if (answer == '0')
+  if (*answer == '0')
   {
     speak  ("I will beat you next time!");
     printf (" # I will beat you next time!\n");
@@ -202,7 +203,6 @@ char akinatorDialogue (tree *akinatorTree)
             " [It] ");
     char *par = (char *)calloc(MAX_FILE_STR_LINE, sizeof (*par));
     gets (par);
-    printf ("- %s\n", par);
 
     node *newNode = nodeCtor ();
     node *newObj  = nodeCtor ();
@@ -218,11 +218,12 @@ char akinatorDialogue (tree *akinatorTree)
     *newNode->key       = par;
     newNode->deepness   = newNode->parent->deepness + 1;
 
-    newObj->parent   = newNode;
-    *newObj->key      = obj;
-    newObj->deepness = newObj->parent->deepness + 1;
+    newObj->parent      = newNode;
+    *newObj->key        = obj;
+    newObj->deepness    = newObj->parent->deepness + 1;
 
-    lastNode->parent = newNode;
+    lastNode->parent    = newNode;
+    lastNode->deepness  = lastNode->parent->deepness + 1;
     akinatorTree->edgeCount += 2;
   }
   return 0;
@@ -288,37 +289,27 @@ char subTreeToFile (node *n, FILE *file)
 
   if (n->key != NULL)
   {
-    tabFprint (file, n->deepness /* tabcount */);
+    tabFprint (file, n->deepness);
     fprintf   (file, "%s\n", *n->key);
   }
 
   if (n->leftChild != NULL)
   {
-    tabFprint     (file, n->deepness /* tabcount */);
+    tabFprint     (file, n->deepness + 1);
     fprintf       (file, "{\n");
     subTreeToFile (n->leftChild, file);
-    tabFprint     (file, n->deepness /* tabcount */);
+    tabFprint     (file, n->deepness + 1);
     fprintf       (file, "}\n");
   }
 
   if (n->rightChild != NULL)
   {
-    tabFprint     (file, n->deepness /* tabcount */);
+    tabFprint     (file, n->deepness + 1);
     fprintf       (file, "{\n");
     subTreeToFile (n->rightChild, file);
-    tabFprint     (file, n->deepness /* tabcount */);
+    tabFprint     (file, n->deepness + 1);
     fprintf       (file, "}\n");
   }
 }
 
-void speak (char* str)
-{
-  char* speakStr = (char*)calloc (MAX_FILE_STR_LINE, sizeof (*speakStr));
-
-  strcat (speakStr, "balcon -n \"Zira\" -t \"");
-  strcat (speakStr, str);
-  strcat (speakStr, "\" -s 5 -v 100");
-
-  system (speakStr);
-}
 //-----------------------------------------------------------------------------

@@ -1,13 +1,79 @@
-It is an animal
-{
-It purrs
-{
-It is a cat
-}
-{ 
-It is a dog
-}
-}
-{
-It is a human
-}
+is an animal
+	{
+	barks
+		{
+		screams
+			{
+			a fox
+			}
+			{
+			is small
+				{
+				a puppy
+				}
+				{
+				a dog
+				}
+			}
+		}
+		{
+		is big
+			{
+			can swim
+				{
+				a whale
+				}
+				{
+				an elephant
+				}
+			}
+			{
+			roams
+				{
+				a mouse
+				}
+				{
+				is an insect
+					{
+					an ant
+					}
+					{
+					a cat
+					}
+				}
+			}
+		}
+	}
+	{
+	rides on road
+		{
+		has two wheels
+			{
+			a bike
+			}
+			{
+			a car
+			}
+		}
+		{
+		can be readen
+			{
+			has pictures
+				{
+				a magazine
+				}
+				{
+				a book
+				}
+			}
+			{
+			stays on earth
+				{
+				a house
+				}
+				{
+				a plane
+				}
+			}
+		}
+	}

@@ -1,80 +1,109 @@
-
 is an animal
-{
+	{
 	barks
-	{
+		{
 		screams
-		{
+			{
 			a fox
-		}
-		{
+			}
+			{
 			is small
-			{
+				{
 				a puppy
-			}
-			{
+				}
+				{
 				a dog
+				}
 			}
 		}
-	}
-	{
+		{
 		is big
-		{
+			{
 			can swim
-			{
-				a whale
+				{
+				has sharp teeth
+					{
+					a shark
+					}
+					{
+					a whale
+					}
+				}
+				{
+				has died out
+					{
+					a dinasour
+					}
+					{
+					an elephant
+					}
+				}
 			}
 			{
-				an elephant
-			}
-		}
-		{
 			roams
-			{
-				a mouse
-			}
-			{
+				{
+				wears a mask
+					{
+					a cat ninja
+					}
+					{
+					a mouse
+					}
+				}
+				{
 				is an insect
-				{
+					{
 					an ant
+					}
+					{
+					a cat
+					}
+				}
+			}
+		}
+	}
+	{
+	rides on road
+		{
+		has two wheels
+			{
+			have the engine
+				{
+				motobike
 				}
 				{
-					a cat
+				a bike
+				}
+			}
+			{
+			a car
+			}
+		}
+		{
+		can be readen
+			{
+			has pictures
+				{
+				a magazine
+				}
+				{
+				a book
+				}
+			}
+			{
+			stays on earth
+				{
+				a house
+				}
+				{
+				is made from water
+					{
+					a cloud
+					}
+					{
+					a plane
+					}
 				}
 			}
 		}
 	}
-}
-{
-	rides on road
-	{
-		has two wheels
-		{
-			a bike
-		}
-		{
-			a car
-		}
-	}
-	{
-		can be readen
-		{
-			has pictures
-			{
-				a magazine
-			}
-			{
-			a book
-			}
-		}
-		{
-			stays on earth
-			{
-				a house
-			}
-			{
-				a plane
-			}
-		}
-	}
-}
