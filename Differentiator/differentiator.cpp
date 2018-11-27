@@ -92,6 +92,8 @@ char  subTreeToFile     (node *n, FILE *file);
 char *getCmd            (char *str, char *cmd);
 
 node *nodeCreateCopy    (node *n);
+
+node *nodeCreate        (node *leftChild, node *rightChild, d_data *key);
 //-----------------------------------------------------------------------------
 char differentiator (const char* fileInName,
                      const char *fileOutName, int diffNumber)
@@ -514,4 +516,15 @@ node *nodeCreateCopy (node *n)
   }
 
   return nCopy;
+}
+//-----------------------------------------------------------------------------
+node *nodeCreate (node *leftChild, node *rightChild, d_data *key)
+{
+  node *n = nodeCtor ();
+
+  n->leftChild  = leftChild;
+  n->rightChild = rightChild;
+  n->key        = key;
+
+  return n;
 }
