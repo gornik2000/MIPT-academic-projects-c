@@ -31,9 +31,11 @@ typedef d_data tree_data;
 
 #include "tree.cpp"
 
-d_data *ddataCtor (void);
+d_data *ddataCtor   (void);
 
-d_data *ddataDtor (d_data *d);
+d_data *ddataDtor   (d_data *d);
+
+d_data *ddataCreate (char type, char priority, d_data_value value);
 
 //-----------------------------------------------------------------------------
 d_data *ddataCtor (void)
@@ -61,24 +63,35 @@ d_data *ddataDtor (d_data *d)
   return d;
 }
 //-----------------------------------------------------------------------------
+d_data *ddataCreate (char type, char priority, d_data_value value)
+{
+  d_data *d = ddataCtor ();
+
+  d->type     = type;
+  d->priority = priority;
+  d->value    = value;
+
+  return d;
+}
+//-----------------------------------------------------------------------------
 char differentiator     (const char* fileInName,
                          const char *fileOutName, int diffNumber);
 
-char treeOptimization   (node *n);
+node *nodeDerivative    (node *n, node *dN);
 
-char nodeOptimization   (node *n);
+char  treeOptimization  (node *n);
+
+char  nodeOptimization  (node *n);
 
 tree *createTreeFromStr (char *str);
 
-tree *treeDerivative    (tree *t);
+char  treeToFile        (tree *t, const char *fileName);
 
-node *subNodeDerivative (node *n);
-
-char treeToFile         (tree *t, const char *fileName);
-
-char subTreeToFile      (node *n, FILE *file);
+char  subTreeToFile     (node *n, FILE *file);
 
 char *getCmd            (char *str, char *cmd);
+
+node *nodeCreateCopy    (node *n);
 //-----------------------------------------------------------------------------
 char differentiator (const char* fileInName,
                      const char *fileOutName, int diffNumber)
@@ -87,18 +100,43 @@ char differentiator (const char* fileInName,
   char *dStr = createStrFromFile ("data.txt", &length);
   //printf (" %s %d %c - first\n", dStr, length, dStr[length]);
 
-  tree *dTree = createTreeFromStr (dStr);
+  tree *t  = createTreeFromStr (dStr);
+  tree *dT = treeCtor ();
   //printf (" line %s \n\n", dStr);
   //printf (" %d \n", dTree->rootNode->key->value);
   //printf (" %d \n", dTree->edgeCount);
   for (int i = 0; i < diffNumber; i++)
   {
-    //dTree = treeDerivative (dTree);
+
+    dT->rootNode = nodeDerivative (t->rootNode, dT->rootNode);
+    treeOptimization (dT->rootNode);
   }
 
-  treeToFile (dTree, fileOutName);
+  treeToFile (dT, fileOutName);
+  //dT = treeDtor (dT);
+  //t  = treeDtor (t);
   return 0;
 }
+
+//-----------------------------------------------------------------------------
+#define DEF_DIFF(name, val, tp, pt, funD)                                     \
+{                                                                             \
+  if (n->key->type == tp && n->key->type != CNST && n->key->value == val)     \
+  {                                                                           \
+    funD                                                                      \
+    return dN;                                                                \
+  }                                                                           \
+}
+/* derivative of n putted in dN*/
+node *nodeDerivative (node *n, node *dN)
+{
+  #include "operations.h"
+  dN->key->type     = CNST;
+  dN->key->value    = 0.0;
+  dN->key->priority = 255;
+  return dN;
+}
+#undef DEF_DIFF
 //-----------------------------------------------------------------------------
 char treeOptimization (node *n)
 {
@@ -126,7 +164,7 @@ char nodeOptimization   (node *n)
   if (n->key->type == OP)
   {
     /* if both exist and right = 0 */
-    if (n-> leftChild             != NULL && n->rightChild          != NULL &&
+    if (n-> leftChild != NULL && n->rightChild != NULL &&
         n->rightChild->key->value == 0)
     {
       if (n->key->value == '*')
@@ -147,7 +185,7 @@ char nodeOptimization   (node *n)
       }
     }
     /* if both exist and left = 0 */
-    if (n-> leftChild             != NULL && n->rightChild          != NULL &&
+    if (n-> leftChild != NULL && n->rightChild != NULL &&
         n-> leftChild->key->value == 0)
     {
       if (n->key->value == '*')
@@ -293,18 +331,18 @@ char nodeOptimization   (node *n)
   return 0;
 }
 //-----------------------------------------------------------------------------
-#define DEF_DIFF(name, val, tp, pt)           \
-{                                             \
-  if (strcmp (name, buf) == 0)                \
-  {                                           \
-    printf ("->%s\n", name);                  \
-    currentNode->key->type     = tp;          \
-    currentNode->key->priority = pt;          \
-    currentNode->key->value    = (double) val;\
-                                              \
-    memset (buf, '\0', sizeof (buf));         \
-    continue;                                 \
-  }                                           \
+#define DEF_DIFF(name, val, tp, pt, funD)                                     \
+{                                                                             \
+  if (strcmp (name, buf) == 0)                                                \
+  {                                                                           \
+    printf ("->%s\n", name);                                                  \
+    currentNode->key->type     = tp;                                          \
+    currentNode->key->priority = pt;                                          \
+    currentNode->key->value    = (double) val;                                \
+                                                                              \
+    memset (buf, '\0', sizeof (buf));                                         \
+    continue;                                                                 \
+  }                                                                           \
 }
 tree *createTreeFromStr (char *str)
 {
@@ -359,14 +397,14 @@ tree *createTreeFromStr (char *str)
 }
 #undef DEF_DIFF
 //-----------------------------------------------------------------------------
-#define DEF_DIFF(name, val, tp, pt)               \
-{                                                 \
-  if (n->key->type == tp && n->key->value == val) \
-  {                                               \
-    fprintf (file, "%s", name);                   \
-    printf ("found operation %s\n", name);        \
-    skip = 1;                                     \
-  }                                               \
+#define DEF_DIFF(name, val, tp, pt, funD)                                     \
+{                                                                             \
+  if (n->key->type == tp && n->key->value == val)                             \
+  {                                                                           \
+    fprintf (file, "%s", name);                                               \
+    printf ("found operation %s\n", name);                                    \
+    skip = 1;                                                                 \
+  }                                                                           \
 }
 char subTreeToFile (node *n, FILE *file)
 {
@@ -454,3 +492,26 @@ char *getCmd (char *str, char *cmd)
   return str - 1;
 }
 //-----------------------------------------------------------------------------
+node *nodeCreateCopy (node *n)
+{
+  node *nCopy =  nodeCtor ();
+  nCopy->key  = ddataCtor ();
+
+  nCopy->key->type     = n->key->type;
+  nCopy->key->priority = n->key->priority;
+  nCopy->key->value    = n->key->value;
+
+  nCopy->deepness = n->deepness;
+  nCopy->parent   = n->parent;
+
+  if (n->leftChild != NULL)
+  {
+    nCopy->leftChild  = nodeCreateCopy (n->leftChild);
+  }
+  if (n->rightChild != NULL)
+  {
+    nCopy->rightChild = nodeCreateCopy (n->rightChild);
+  }
+
+  return nCopy;
+}

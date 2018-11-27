@@ -64,7 +64,7 @@ tree *treeCtor          (void);
 tree *treeDtor          (tree *t);
 node *treeSubDtor       (node *n);
 
-char nodeKillChildren   (node *n);
+char  nodeKillChildren  (node *n);
 //-----------------------------------------------------------------------------
 tree *treeCtor (void)
 {
@@ -135,3 +135,4 @@ char nodeKillChildren (node *n)
   }
   return 0;
 }
+//-----------------------------------------------------------------------------

@@ -1,3 +1,6 @@
+/* functions of returning (repairing) relations */
+/* sort branches for better optimization        */
+
 #include "differentiator.cpp"
 //-----------------------------------------------------------------------------
 int main ()
