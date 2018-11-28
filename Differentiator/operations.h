@@ -1,104 +1,324 @@
 /* if you need optimization, add to optimization node function */
 /* name - value - type - priority - derivative function*/
 //-----------------------------------------------------------------------------
+#define D(n)         nodeCreateDerivative (n)
+#define C(n)         nodeCreateCopy (n)
+#define NC(k, l, r)  nodeCreate (l, r, k)
+#define DC(t, p, v)  ddataCreate(t, p, v)
+//-----------------------------------------------------------------------------
 /* variables  */
 DEF_DIFF ("x", 'x', VAR, 255,
           {
-            dN->key = ddataCreate (CNST, 255, 1);
+            dN = NC (DC (CNST, 255, 1),
+                     NULL,
+                     NULL
+                     );
+          })
+DEF_DIFF ("y", 'y', VAR, 255,
+          {
+            dN = NC (DC (CNST, 255, 1),
+                     NULL,
+                     NULL
+                     );
+          })
+
+DEF_DIFF ("z", 'z', VAR, 255,
+          {
+            dN = NC (DC (CNST, 255, 1),
+                     NULL,
+                     NULL
+                     );
           })
 //-----------------------------------------------------------------------------
 /* operations */
-DEF_DIFF ("+",      '+', OP, 3,
+DEF_DIFF ("+",      '+', OP, 30,
           {
             /* node - +, right child - diff(right), left child - diff(left),
             right left child - -1, right right child - cos(copy) */
-
-            dN->key = ddataCreate (OP, 3, '+');
-
-            dN->leftChild  = nodeCtor ();
-            dN->leftChild  = nodeDerivative (n->leftChild,  dN->leftChild);
-
-            dN->rightChild = nodeCtor ();
-            dN->rightChild = nodeDerivative (n->rightChild, dN->rightChild);
+            dN = NC (DC (OP, 30, '+'),
+                     D  (n->leftChild),
+                     D  (n->rightChild)
+                     );
           })
-DEF_DIFF ("-",      '-', OP, 3,
+DEF_DIFF ("-",      '-', OP, 30,
           {
             /* node - -, right child - diff(right), left child - diff(left),
             right left child - -1, right right child - cos(copy) */
-
-            dN->key = ddataCreate (OP, 3, '-');
-
-            dN->leftChild  = nodeCtor ();
-            dN->leftChild  = nodeDerivative (n->leftChild,  dN->leftChild);
-
-            dN->rightChild = nodeCtor ();
-            dN->rightChild = nodeDerivative (n->rightChild, dN->rightChild);
+            dN = NC (DC (OP, 30, '-'),
+                     D  (n->leftChild),
+                     D  (n->rightChild)
+                     );
           })
-DEF_DIFF ("*",      '*', OP, 2,
+DEF_DIFF ("*",      '*', OP, 20,
           {
+            dN = NC (DC (OP, 30, '+'),
+                     NC (DC (OP, 20, '*'),
+                         D  (n->leftChild),
+                         C  (n->rightChild)
+                         ),
+                     NC (DC (OP, 20, '*'),
+                         C  (n->leftChild),
+                         D  (n->rightChild)
+                         )
+                     );
           })
-DEF_DIFF ("/",      '/', OP, 2,
+DEF_DIFF ("/",      '/', OP, 20,
           {
+            dN = NC (DC (OP, 20, '/'),
+                     NC (DC (OP, 30, '-'),
+                         NC (DC (OP, 20, '*'),
+                             D  (n->leftChild),
+                             C  (n->rightChild)
+                            ),
+                         NC (DC (OP, 20, '*'),
+                             C  (n->leftChild),
+                             D  (n->rightChild)
+                            )
+                         ),
+                     NC (DC (OP, 20, '*'),
+                         C  (n->rightChild),
+                         C  (n->rightChild)
+                         )
+                     );
           })
-DEF_DIFF ("^",      '^', OP, 2,
+DEF_DIFF ("^",      '^', OP, 15,
           {
+            if (n->rightChild->key->type == CNST)
+            {
+              dN = NC (DC (OP, 20, '*'),
+                       NC (DC (OP, 20, '*'),
+                           C  (n->rightChild),
+                           NC (DC (OP, 15, '^'),
+                               C (n->leftChild),
+                               NC (DC (CNST, 255, n->rightChild->key->value - 1),
+                                   NULL,
+                                   NULL
+                                   )
+                               )
+                           ),
+                       D (n->leftChild)
+                       );
+            }
+            else
+            {
+              dN = NC (DC (OP, 20, '*'),
+                       NC (DC (OP, 15, '^'),
+                           C  (n->leftChild),
+                           C  (n->rightChild)
+                           ),
+                       NC (DC (OP, 30, '+'),
+                           NC (DC (OP, 20, '*'),
+                               D  (n->rightChild),
+                               NC (DC (OP, 10, 'l'),
+                                   C  (n->leftChild),
+                                   NULL
+                                   )
+                               ),
+                           NC (DC (OP, 20, '*'),
+                               D  (n->leftChild),
+                               NC (DC (OP, 20, '/'),
+                                   C  (n->rightChild),
+                                   C  (n->leftChild)
+                                   )
+                               )
+                           )
+                       );
+            }
           })
-DEF_DIFF ("ln",     'l', OP, 1,
+DEF_DIFF ("ln",     'l', OP, 10,
           {
+            dN = NC (DC (OP, 20, '*'),
+                     D  (n->leftChild),
+                     NC (DC (OP, 20, '/'),
+                         NC (DC (CNST, 255, 1),
+                             NULL,
+                             NULL
+                             ),
+                         C  (n->leftChild)
+                         )
+                     );
           })
-DEF_DIFF ("sin",    's', OP, 1,
+DEF_DIFF ("sin",    's', OP, 10,
           {
             /* node - *, left - diff(), right - cos(copy) */
-
-            dN->key = ddataCreate (OP, 2, '*');
-
-            dN->leftChild = nodeCtor ();
-            dN->leftChild = nodeDerivative (n->leftChild, dN->leftChild);
-
-            dN->rightChild      = nodeCtor ();
-            dN->rightChild->key = ddataCreate (OP, 1, 'c');
-
-            dN->rightChild->leftChild  = nodeCreateCopy (n->leftChild);
+            dN = NC (DC (OP, 20, '*'),
+                     D  (n->leftChild),
+                     NC (DC (OP, 10, 'c'),
+                         C  (n->leftChild),
+                         NULL
+                         )
+                     );
           })
-DEF_DIFF ("cos",    'c', OP, 1,
+DEF_DIFF ("cos",    'c', OP, 10,
           {
             /* node - *, right child - *, left child - diff(),
             right left child - -1, right right child - cos(copy) */
-            dN->key = ddataCreate (OP, 2, '*');
-
-            dN->leftChild    = nodeCtor ();
-            dN->leftChild    = nodeDerivative (n->leftChild, dN->leftChild);
-
-            dN->rightChild      = nodeCtor ();
-            dN->rightChild->key = ddataCreate (OP, 2, '*');
-
-            dN->rightChild->leftChild       = nodeCtor ();
-            dN->rightChild->leftChild->key  = ddataCreate (CNST, 255, -1);
-
-            dN->rightChild->rightChild      = nodeCtor ();
-            dN->rightChild->rightChild->key = ddataCreate (OP, 1, 's');
-
-            dN->rightChild->rightChild->leftChild  = nodeCreateCopy (n->leftChild);
+            dN = NC (DC (OP, 20, '*'),
+                     D  (n->leftChild),
+                     NC (DC (OP, 30, '-'),
+                         NC (DC (CNST, 255, 0),
+                             NULL,
+                             NULL
+                             ),
+                         NC (DC (OP, 10, 's'),
+                             C  (n->leftChild),
+                             NULL
+                             )
+                         )
+                     );
           })
-DEF_DIFF ("tan",    't', OP, 1,
+DEF_DIFF ("tan",    't', OP, 10,
           {
+            dN = NC (DC (OP, 20, '*'),
+                     D  (n->leftChild),
+                     NC (DC (OP, 15, '^'),
+                         NC (DC (OP, 10, 'c'),
+                             C  (n->leftChild),
+                             NULL
+                             ),
+                         NC (DC (CNST, 255, -2),
+                             NULL,
+                             NULL
+                             )
+                         )
+                     );
           })
-DEF_DIFF ("cot",    '1', OP, 1,
+DEF_DIFF ("cot",    '1', OP, 10,
           {
+            dN = NC (DC (OP, 20, '*'),
+                     D  (n->leftChild),
+                     NC (DC (OP, 15, '^'),
+                         NC (DC (OP, 10, 's'),
+                             C  (n->leftChild),
+                             NULL
+                             ),
+                         NC (DC (CNST, 255, -2),
+                             NULL,
+                             NULL
+                             )
+                         )
+                     );
           })
-DEF_DIFF ("arcsin", '2', OP, 1,
+DEF_DIFF ("arcsin", '2', OP, 10,
           {
+            dN = NC (DC (OP, 20, '*'),
+                     D  (n->leftChild),
+                     NC (DC (OP, 15, '^'),
+                         NC (DC (OP, 30, '-'),
+                             NC (DC (CNST, 255, 1),
+                                 NULL,
+                                 NULL
+                                ),
+                            NC (DC (OP, 15, '^'),
+                                C (n->leftChild),
+                                NC (DC (CNST, 255, 2),
+                                    NULL,
+                                    NULL
+                                   )
+                               )
+                            ),
+                         NC (DC (CNST, 255, -0.5),
+                             NULL,
+                             NULL
+                             )
+                         )
+                     );
           })
-DEF_DIFF ("arccos", '3', OP, 1,
+DEF_DIFF ("arccos", '3', OP, 10,
           {
+            dN = NC (DC (OP, 20, '*'),
+                     NC (DC (OP, 30, '-'),
+                         NC (DC (CNST, 255, 0),
+                             NULL,
+                             NULL
+                             ),
+                         D  (n->leftChild)
+                         ),
+                     NC (DC (OP, 15, '^'),
+                         NC (DC (OP, 30, '-'),
+                             NC (DC (CNST, 255, 1),
+                                 NULL,
+                                 NULL
+                                ),
+                            NC (DC (OP, 15, '^'),
+                                C (n->leftChild),
+                                NC (DC (CNST, 255, 2),
+                                    NULL,
+                                    NULL
+                                   )
+                               )
+                            ),
+                         NC (DC (CNST, 255, -0.5),
+                             NULL,
+                             NULL
+                             )
+                         )
+                     );
           })
-DEF_DIFF ("arccot", '4', OP, 1,
+DEF_DIFF ("arctan", '4', OP, 10,
           {
+            dN = NC (DC (OP, 20, '*'),
+                     D  (n->leftChild),
+                     NC (DC (OP, 15, '^'),
+                         NC (DC (OP, 30, '+'),
+                             NC (DC (CNST, 255, 1),
+                                 NULL,
+                                 NULL
+                                ),
+                            NC (DC (OP, 15, '^'),
+                                C (n->leftChild),
+                                NC (DC (CNST, 255, 2),
+                                    NULL,
+                                    NULL
+                                   )
+                               )
+                            ),
+                         NC (DC (CNST, 255, -1),
+                             NULL,
+                             NULL
+                             )
+                         )
+                     );
           })
-DEF_DIFF ("arcctg", '5', OP, 1,
+DEF_DIFF ("arccot", '5', OP, 10,
           {
+            dN = NC (DC (OP, 20, '*'),
+                     NC (DC (OP, 30, '-'),
+                         NC (DC (CNST, 255, 0),
+                             NULL,
+                             NULL
+                             ),
+                         D  (n->leftChild)
+                         ),
+                     NC (DC (OP, 15, '^'),
+                         NC (DC (OP, 30, '+'),
+                             NC (DC (CNST, 255, 1),
+                                 NULL,
+                                 NULL
+                                ),
+                            NC (DC (OP, 15, '^'),
+                                C (n->leftChild),
+                                NC (DC (CNST, 255, 2),
+                                    NULL,
+                                    NULL
+                                   )
+                               )
+                            ),
+                         NC (DC (CNST, 255, -1),
+                             NULL,
+                             NULL
+                             )
+                         )
+                     );
           })
 //-----------------------------------------------------------------------------
 /* constants  */
-DEF_DIFF ("pi", 3.141592654, CNST, 255, ;)
-DEF_DIFF ("e",  2.718281828, CNST, 255, ;)
+DEF_DIFF ("pi",  3.141592654, CNST, 255, ;)
+DEF_DIFF ("e",   2.718281828, CNST, 255, ;)
+DEF_DIFF ("phi", 1.618033989, CNST, 255, ;)
+DEF_DIFF ("ñ",   299792458,   CNST, 255, ;)
+//-----------------------------------------------------------------------------
+#undef D
+#undef NCC
+#undef NC
+#undef DC

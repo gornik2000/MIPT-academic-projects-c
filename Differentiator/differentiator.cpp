@@ -74,26 +74,25 @@ d_data *ddataCreate (char type, char priority, d_data_value value)
   return d;
 }
 //-----------------------------------------------------------------------------
-char differentiator     (const char* fileInName,
-                         const char *fileOutName, int diffNumber);
+char differentiator        (const char* fileInName,
+                            const char *fileOutName, int diffNumber);
 
-node *nodeDerivative    (node *n, node *dN);
+char *getCmd               (char *str, char *cmd);
+tree *createTreeFromStr    (char *str);
+int   isNodesNotSame       (node *n1, node *n2);
+node *nodeCreateDerivative (node *n);
 
-char  treeOptimization  (node *n);
+char  treeOptimization     (node *n);
+char  nodeOptimization     (node *n);
 
-char  nodeOptimization  (node *n);
+char  treeToFile           (tree *t, const char *fileName);
+char  subTreeToFile        (node *n, FILE *file);
 
-tree *createTreeFromStr (char *str);
+char  treeRepair           (tree *t);
+int   subTreeRepair        (node *n);
 
-char  treeToFile        (tree *t, const char *fileName);
-
-char  subTreeToFile     (node *n, FILE *file);
-
-char *getCmd            (char *str, char *cmd);
-
-node *nodeCreateCopy    (node *n);
-
-node *nodeCreate        (node *leftChild, node *rightChild, d_data *key);
+node *nodeCreateCopy       (node *n);
+node *nodeCreate           (node *leftChild, node *rightChild, d_data *key);
 //-----------------------------------------------------------------------------
 char differentiator (const char* fileInName,
                      const char *fileOutName, int diffNumber)
@@ -107,13 +106,16 @@ char differentiator (const char* fileInName,
   //printf (" line %s \n\n", dStr);
   //printf (" %d \n", dTree->rootNode->key->value);
   //printf (" %d \n", dTree->edgeCount);
+  dT->rootNode = nodeCreateCopy (t->rootNode);
+  //treeOptimization (dT->rootNode);
   for (int i = 0; i < diffNumber; i++)
   {
-
-    dT->rootNode = nodeDerivative (t->rootNode, dT->rootNode);
+    dT->rootNode = nodeCreateDerivative (dT->rootNode);
     treeOptimization (dT->rootNode);
   }
 
+  treeRepair (dT);
+  //printf ("edges %d \n", dT->edgeCount);
   treeToFile (dT, fileOutName);
   //dT = treeDtor (dT);
   //t  = treeDtor (t);
@@ -125,24 +127,26 @@ char differentiator (const char* fileInName,
 {                                                                             \
   if (n->key->type == tp && n->key->type != CNST && n->key->value == val)     \
   {                                                                           \
+    node *dN = 0;                                                             \
     funD                                                                      \
     return dN;                                                                \
   }                                                                           \
 }
-/* derivative of n putted in dN*/
-node *nodeDerivative (node *n, node *dN)
+/* derivative of n */
+node *nodeCreateDerivative (node *n)
 {
+  //node *dN = nodeCtor ();
   #include "operations.h"
-  dN->key->type     = CNST;
-  dN->key->value    = 0.0;
-  dN->key->priority = 255;
+
+  node *dN = nodeCtor ();
+  dN->key = ddataCreate (CNST, 255, 0.0);
   return dN;
 }
 #undef DEF_DIFF
 //-----------------------------------------------------------------------------
 char treeOptimization (node *n)
 {
-  printf ("t");
+  //printf ("t");
   nodeOptimization (n);
 
   if (n->leftChild  != NULL)
@@ -162,182 +166,222 @@ char treeOptimization (node *n)
 //-----------------------------------------------------------------------------
 char nodeOptimization   (node *n)
 {
-  printf ("n");
-  if (n->key->type == OP)
+  //printf ("n");
+  if (n->key->type != OP)
   {
-    /* if both exist and right = 0 */
-    if (n-> leftChild != NULL && n->rightChild != NULL &&
-        n->rightChild->key->value == 0)
+    return 0;
+  }
+  /* if both exist and right = 0 */
+  if (n-> leftChild != NULL && n->rightChild != NULL &&
+      n->rightChild->key->value == 0)
+  {
+    switch ((char) n->key->value)
     {
-      if (n->key->value == '*')
-      {
-        n->key->type     = CNST;
-        n->key->priority = 255;
-        n->key->value    = 0;
-        nodeKillChildren (n);
-        return 0;
-      }
-      if (n->key->value == '^')
-      {
-        n->key->type     = CNST;
-        n->key->priority = 255;
-        n->key->value    = 1;
-        nodeKillChildren (n);
-        return 0;
-      }
-    }
-    /* if both exist and left = 0 */
-    if (n-> leftChild != NULL && n->rightChild != NULL &&
-        n-> leftChild->key->value == 0)
-    {
-      if (n->key->value == '*')
-      {
-        n->key->type     = CNST;
-        n->key->priority = 255;
-        n->key->value    = 0;
-        nodeKillChildren (n);
-        return 0;
-      }
-      if (n->key->value == '/')
-      {
-        n->key->type     = CNST;
-        n->key->priority = 255;
-        n->key->value    = 0;
-        nodeKillChildren (n);
-        return 0;
-      }
-      if (n->key->value == '^')
-      {
-        n->key->type     = CNST;
-        n->key->priority = 255;
-        n->key->value    = 0;
-        nodeKillChildren (n);
-        return 0;
-      }
-    }
-    /* both exist and const */
-    if (n-> leftChild            != NULL && n->rightChild            != NULL &&
-        n-> leftChild->key->type == CNST && n->rightChild->key->type == CNST)
-    {
-      if (n->key->value == '+')
-      {
-        n->key->type     = CNST;
-        n->key->priority = 255;
-        n->key->value    = n->leftChild->key->value + n->rightChild->key->value;
-        nodeKillChildren (n);
-        return 0;
-      }
-      if (n->key->value == '-')
-      {
-        n->key->type     = CNST;
-        n->key->priority = 255;
-        n->key->value    = n->leftChild->key->value - n->rightChild->key->value;
-        nodeKillChildren (n);
-        return 0;
-      }
-      if (n->key->value == '*')
-      {
-        n->key->type     = CNST;
-        n->key->priority = 255;
-        n->key->value    = n->leftChild->key->value * n->rightChild->key->value;
-        nodeKillChildren (n);
-        return 0;
-      }
-      if (n->key->value == '/')
-      {
-        n->key->type     = CNST;
-        n->key->priority = 255;
-        n->key->value    = n->leftChild->key->value / n->rightChild->key->value;
-        nodeKillChildren (n);
-        return 0;
-      }
-      if (n->key->value == '^')
-      {
-        n->key->type     = CNST;
-        n->key->priority = 255;
-        n->key->value    = pow (n->leftChild->key->value, n->rightChild->key->value);
-        nodeKillChildren (n);
-        return 0;
-      }
+    case '*' :
+      n->key = ddataCreate (CNST, 255, 0);
+      nodeKillChildren (n);
+      return 0;
+    case '^' :
+      n->key = ddataCreate (CNST, 255, 1);
+      nodeKillChildren (n);
+      return 0;
+    case '+' :
+      nodeDtor (n->rightChild);
+      n->rightChild = n->leftChild->rightChild;
+      n->key        = n->leftChild->key;
+      n->leftChild  = n->leftChild->leftChild;
+      return 0;
+    case '-' :
+      nodeDtor (n->rightChild);
+      n->rightChild = n->leftChild->rightChild;
+      n->key        = n->leftChild->key;
+      n->leftChild  = n->leftChild->leftChild;
       return 0;
     }
-    /* if left exist and const */
-    if (n->leftChild != NULL && n->leftChild->key->type == CNST)
+  }
+  /* if both exist and left = 0 */
+  if (n-> leftChild != NULL && n->rightChild != NULL &&
+      n-> leftChild->key->value == 0)
+  {
+    switch ((char) n->key->value)
     {
-      if (n->key->value == 's')
-      {
-        n->key->type     = CNST;
-        n->key->priority = 255;
-        n->key->value    = sin (n->leftChild->key->value);
-        nodeKillChildren (n);
-        return 0;
-      }
-      if (n->key->value == 'c')
-      {
-        n->key->type     = CNST;
-        n->key->priority = 255;
-        n->key->value    = cos (n->leftChild->key->value);
-        nodeKillChildren (n);
-        return 0;
-      }
-      if (n->key->value == 't')
-      {
-        n->key->type     = CNST;
-        n->key->priority = 255;
-        n->key->value    = tan (n->leftChild->key->value);
-        nodeKillChildren (n);
-        return 0;
-      }
-      if (n->key->value == '1')
-      {
-        n->key->type     = CNST;
-        n->key->priority = 255;
-        n->key->value    = 1 / tan (n->leftChild->key->value);
-        nodeKillChildren (n);
-        return 0;
-      }
-      if (n->key->value == '2')
-      {
-        n->key->type     = CNST;
-        n->key->priority = 255;
-        n->key->value    = asin (n->leftChild->key->value);
-        nodeKillChildren (n);
-        return 0;
-      }
-      if (n->key->value == '3')
-      {
-        n->key->type     = CNST;
-        n->key->priority = 255;
-        n->key->value    = acos (n->leftChild->key->value);
-        nodeKillChildren (n);
-        return 0;
-      }
-      if (n->key->value == '4')
-      {
-        n->key->type     = CNST;
-        n->key->priority = 255;
-        n->key->value    = atan (n->leftChild->key->value);
-        nodeKillChildren (n);
-        return 0;
-      }
-      if (n->key->value == '5')
-      {
-        n->key->type     = CNST;
-        n->key->priority = 255;
-        n->key->value    = PI / 2.0 - (n->leftChild->key->value);
-        nodeKillChildren (n);
-        return 0;
-      }
+    case '*' :
+      n->key = ddataCreate (CNST, 255, 0);
+      nodeKillChildren (n);
+      return 0;
+    case '/' :
+      n->key = ddataCreate (CNST, 255, 0);
+      nodeKillChildren (n);
+      return 0;
+    case '^' :
+      n->key = ddataCreate (CNST, 255, 0);
+      nodeKillChildren (n);
+      return 0;
+    case '+' :
+      nodeDtor (n->leftChild);
+      n->leftChild  = n->rightChild->leftChild;
+      n->key        = n->rightChild->key;
+      n->rightChild = n->rightChild->rightChild;
+      return 0;
     }
   }
-  return 0;
+  /* if both exist and right = 1 */
+  if (n-> leftChild != NULL && n->rightChild != NULL &&
+      n->rightChild->key->value == 1)
+  {
+    switch ((char) n->key->value)
+    {
+    case '*' :
+      nodeDtor (n->rightChild);
+      n->rightChild = n->leftChild->rightChild;
+      n->key        = n->leftChild->key;
+      n->leftChild  = n->leftChild->leftChild;
+      return 0;
+    case '^' :
+      nodeDtor (n->rightChild);
+      n->rightChild = n->leftChild->rightChild;
+      n->key        = n->leftChild->key;
+      n->leftChild  = n->leftChild->leftChild;
+      return 0;
+    case '/' :
+      nodeDtor (n->rightChild);
+      n->rightChild = n->leftChild->rightChild;
+      n->key        = n->leftChild->key;
+      n->leftChild  = n->leftChild->leftChild;
+      return 0;
+    }
+  }
+  /* if both exist and left = 1 */
+  if (n-> leftChild != NULL && n->rightChild != NULL &&
+      n-> leftChild->key->value == 1)
+  {
+    switch ((char) n->key->value)
+    {
+    case '*' :
+      nodeDtor (n->leftChild);
+      n->leftChild  = n->rightChild->leftChild;
+      n->key        = n->rightChild->key;
+      n->rightChild = n->rightChild->rightChild;
+      return 0;
+    case '^' :
+      n->key = ddataDtor   (n->key);
+      n->key = ddataCreate (CNST, 255, 1);
+      nodeKillChildren (n);
+      return 0;
+    }
+  }
+  /* both exist and const */
+  if (n-> leftChild            != NULL && n->rightChild            != NULL &&
+      n-> leftChild->key->type == CNST && n->rightChild->key->type == CNST)
+  {
+    switch ((char) n->key->value)
+    {
+    case '+' :
+      n->key = ddataCreate (CNST, 255, n->leftChild->key->value + n->rightChild->key->value);
+      nodeKillChildren (n);
+      return 0;
+    case '-' :
+      n->key = ddataCreate (CNST, 255, n->leftChild->key->value - n->rightChild->key->value);
+      nodeKillChildren (n);
+      return 0;
+    case '*' :
+      n->key = ddataCreate (CNST, 255, n->leftChild->key->value * n->rightChild->key->value);
+      nodeKillChildren (n);
+      return 0;
+    case '/' :
+      n->key = ddataCreate (CNST, 255, n->leftChild->key->value / n->rightChild->key->value);
+      nodeKillChildren (n);
+      return 0;
+    case '^' :
+      n->key = ddataCreate (CNST, 255, pow (n->leftChild->key->value, n->rightChild->key->value));
+      nodeKillChildren (n);
+      return 0;
+    }
+    return 0;
+  }
+  /* if left and right exist and not const and same */
+  if (n-> leftChild != NULL && n->rightChild != NULL &&
+      isNodesNotSame (n->leftChild, n->rightChild) == 0)
+  {
+    switch ((char) n->key->value)
+    {
+    case '-' :
+      n->key = ddataDtor (n->key);
+      n->key = ddataCreate (CNST, 255, 0);
+      nodeKillChildren (n);
+      return 0;
+    case '/' :
+      n->key = ddataDtor (n->key);
+      n->key = ddataCreate (CNST, 255, 1);
+      nodeKillChildren (n);
+      return 0;
+    case '+' :
+      n->leftChild = nodeDtor   (n->leftChild);
+      n->leftChild = nodeCreate (NULL, NULL, ddataCreate (CNST, 255, 2));
+      n->key = ddataDtor (n->key);
+      n->key = ddataCreate (OP, 20, '*');
+      return 0;
+    case '*' :
+      n->rightChild = nodeDtor   (n->rightChild);
+      n->rightChild = nodeCreate (NULL, NULL, ddataCreate (CNST, 255, 2));
+      n->key = ddataDtor (n->key);
+      n->key = ddataCreate (OP, 20, '^');
+      return 0;
+    }
+  }
+  /* if left exist and const and right do not exist */
+  if (n->leftChild != NULL && n->leftChild->key->type == CNST)
+  {
+    switch ((char) n->key->value)
+    {
+    case 's' :
+      n->key = ddataDtor   (n->key);
+      n->key = ddataCreate (CNST, 255, sin (n->leftChild->key->value));
+      nodeKillChildren (n);
+      return 0;
+    case  'c' :
+      n->key = ddataDtor   (n->key);
+      n->key = ddataCreate (CNST, 255, cos (n->leftChild->key->value));
+      nodeKillChildren (n);
+      return 0;
+    case 't' :
+      n->key = ddataDtor   (n->key);
+      n->key = ddataCreate (CNST, 255, tan (n->leftChild->key->value));
+      nodeKillChildren (n);
+      return 0;
+    case  '1' :
+      n->key = ddataDtor   (n->key);
+      n->key = ddataCreate (CNST, 255, 1 / tan (n->leftChild->key->value));
+      nodeKillChildren (n);
+      return 0;
+    case '2' :
+      n->key = ddataDtor   (n->key);
+      n->key = ddataCreate (CNST, 255, asin (n->leftChild->key->value));
+      nodeKillChildren (n);
+      return 0;
+    case '3' :
+      n->key = ddataDtor   (n->key);
+      n->key = ddataCreate (CNST, 255, acos (n->leftChild->key->value));
+      nodeKillChildren (n);
+      return 0;
+    case '4' :
+      n->key = ddataDtor   (n->key);
+      n->key = ddataCreate (CNST, 255, atan (n->leftChild->key->value));
+      nodeKillChildren (n);
+      return 0;
+    case '5' :
+      n->key = ddataDtor   (n->key);
+      n->key = ddataCreate (CNST, 255, PI / 2.0 - (n->leftChild->key->value));
+      nodeKillChildren (n);
+      return 0;
+    }
+  }
 }
 //-----------------------------------------------------------------------------
 #define DEF_DIFF(name, val, tp, pt, funD)                                     \
 {                                                                             \
   if (strcmp (name, buf) == 0)                                                \
   {                                                                           \
-    printf ("->%s\n", name);                                                  \
     currentNode->key->type     = tp;                                          \
     currentNode->key->priority = pt;                                          \
     currentNode->key->value    = (double) val;                                \
@@ -348,7 +392,7 @@ char nodeOptimization   (node *n)
 }
 tree *createTreeFromStr (char *str)
 {
-  printf ("start str to tree \n");
+  //printf ("start str to tree \n");
   tree *t = treeCtor ();
   node *currentNode = t->rootNode;
 
@@ -392,9 +436,9 @@ tree *createTreeFromStr (char *str)
   }
   free (buf);
 
-  printf ("end str to tree \n\n");
+  //printf ("end str to tree \n\n");
   treeOptimization (t->rootNode);
-  printf ("end of optimization\n\n");
+  //printf ("end of optimization\n\n");
   return t;
 }
 #undef DEF_DIFF
@@ -404,7 +448,7 @@ tree *createTreeFromStr (char *str)
   if (n->key->type == tp && n->key->value == val)                             \
   {                                                                           \
     fprintf (file, "%s", name);                                               \
-    printf ("found operation %s\n", name);                                    \
+    /*printf ("found operation %s\n", name);*/                                \
     skip = 1;                                                                 \
   }                                                                           \
 }
@@ -420,8 +464,7 @@ char subTreeToFile (node *n, FILE *file)
 
     if (skip == 0)
     {
-      printf ("found value %lf\n", n->key->value);
-      fprintf (file, "%lf", n->key->value);
+      fprintf (file, "%.2lf", n->key->value);
     }
   }
 
@@ -469,7 +512,7 @@ char subTreeToFile (node *n, FILE *file)
 //-----------------------------------------------------------------------------
 char treeToFile (tree *t, const char *fileName)
 {
-  printf ("start tree to file\n");
+  //printf ("start tree to file\n");
 
   assert (t        != NULL);
   assert (fileName != NULL);
@@ -478,7 +521,9 @@ char treeToFile (tree *t, const char *fileName)
 
   subTreeToFile (t->rootNode, file);
 
-  printf ("end tree to file\n\n");
+  //printf ("end tree to file\n\n");
+
+  return 0;
 }
 //-----------------------------------------------------------------------------
 char *getCmd (char *str, char *cmd)
@@ -527,4 +572,75 @@ node *nodeCreate (node *leftChild, node *rightChild, d_data *key)
   n->key        = key;
 
   return n;
+}
+//-----------------------------------------------------------------------------
+int isNodesNotSame (node *n1, node *n2)
+{
+  if (n1->key->type     == n2->key->type &&
+      n1->key->priority == n2->key->priority &&
+      n1->key->value    == n2->key->value)
+  {
+    if (n1->leftChild  != NULL && n2->leftChild  != NULL &&
+        n1->rightChild != NULL && n2->rightChild != NULL)
+    {
+      return isNodesNotSame (n1->leftChild, n2->leftChild) +
+             isNodesNotSame (n1->rightChild, n2->rightChild);
+    }
+    if (n1->leftChild  != NULL && n2->leftChild  != NULL)
+    {
+      return isNodesNotSame (n1->leftChild, n2->leftChild);
+    }
+    if (n1->rightChild != NULL && n2->rightChild != NULL)
+    {
+      return isNodesNotSame (n1->rightChild, n2->rightChild);
+    }
+    if (n1->leftChild  == NULL && n2->leftChild  == NULL &&
+        n1->rightChild == NULL && n2->rightChild == NULL)
+    {
+      return 0;
+    }
+  }
+
+  return 1;
+}
+
+char  treeRepair           (tree *t)
+{
+  assert (t != NULL);
+
+  t->rootNode->parent   = NULL;
+  t->rootNode->deepness = 0;
+
+  t->edgeCount = subTreeRepair (t->rootNode);
+
+  return 0;
+}
+
+int  subTreeRepair        (node *n)
+{
+  assert (n != NULL);
+
+  if (n->leftChild != NULL && n->rightChild != NULL)
+  {
+    n->leftChild->parent   = n;
+    n->leftChild->deepness = n->deepness + 1;
+    n->rightChild->parent   = n;
+    n->rightChild->deepness = n->deepness + 1;
+    return subTreeRepair (n->rightChild) +
+           subTreeRepair (n->leftChild) + 2;
+  }
+  if (n->leftChild != NULL)
+  {
+    n->leftChild->parent   = n;
+    n->leftChild->deepness = n->deepness + 1;
+    return subTreeRepair (n->leftChild) + 1;
+  }
+  if (n->rightChild != NULL)
+  {
+    n->rightChild->parent   = n;
+    n->rightChild->deepness = n->deepness + 1;
+    return subTreeRepair (n->rightChild) + 1;
+  }
+
+  return 0;
 }

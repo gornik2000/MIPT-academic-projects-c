@@ -1,10 +1,20 @@
-/* functions of returning (repairing) relations */
-/* sort branches for better optimization        */
-
 #include "differentiator.cpp"
 //-----------------------------------------------------------------------------
 int main ()
 {
-  differentiator ("data.txt", "out.txt", 1);
-  //printf ("%s", dStr);
+  printf (" # Differentiator 1.3\n"
+          " # This program helps to count derivatives of the inputted data \n"
+          " # Input expression in \"data.txt\" without enter and"
+          " with all brackets\n"
+          " # Derivative can be found in \"out.txt\". Good luck! \n\n");
+
+  int diffNumber = 0;
+  printf (" # enter Derivative number ");
+  scanf  ("%d", &diffNumber);
+  printf ("\n");
+
+
+  differentiator ("data.txt", "out.txt", diffNumber);
+  printf (" # Derivative was successfully counted\n"
+          " # Thanks for using this program\n");
 }

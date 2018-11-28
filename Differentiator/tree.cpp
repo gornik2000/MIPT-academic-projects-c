@@ -24,7 +24,7 @@ node *nodeCtor (void)
 {
   node *n       = (node *)calloc (1, sizeof (*n));
 
-  n->key   = (node_data *)calloc (1, sizeof (*(n->key)));
+  n->key        = (node_data *)calloc (1, sizeof (*(n->key)));
   n->leftChild  = NULL;
   n->parent     = NULL;
   n->rightChild = NULL;
