@@ -1,0 +1,1 @@
+ln(2.18+arctanx)^(e+x^pi)

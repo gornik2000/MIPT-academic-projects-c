@@ -1,3 +1,4 @@
+//-----------------------------------------------------------------------------
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -93,21 +94,21 @@ int   subTreeRepair        (node *n);
 
 node *nodeCreateCopy       (node *n);
 node *nodeCreate           (node *leftChild, node *rightChild, d_data *key);
+
+#include "recursiveDescent.cpp"
 //-----------------------------------------------------------------------------
 char differentiator (const char* fileInName,
                      const char *fileOutName, int diffNumber)
 {
   int length = 0;
   char *dStr = createStrFromFile ("data.txt", &length);
-  //printf (" %s %d %c - first\n", dStr, length, dStr[length]);
 
-  tree *t  = createTreeFromStr (dStr);
+  //tree *t  = createTreeFromStr (dStr);
+  tree *t = getTree (dStr);
   tree *dT = treeCtor ();
-  //printf (" line %s \n\n", dStr);
-  //printf (" %d \n", dTree->rootNode->key->value);
-  //printf (" %d \n", dTree->edgeCount);
+
   dT->rootNode = nodeCreateCopy (t->rootNode);
-  //treeOptimization (dT->rootNode);
+
   for (int i = 0; i < diffNumber; i++)
   {
     dT->rootNode = nodeCreateDerivative (dT->rootNode);
@@ -115,15 +116,13 @@ char differentiator (const char* fileInName,
   }
 
   treeRepair (dT);
-  //printf ("edges %d \n", dT->edgeCount);
   treeToFile (dT, fileOutName);
-  //dT = treeDtor (dT);
-  //t  = treeDtor (t);
+  treeToFile (t, "expression.txt");
   return 0;
 }
 
 //-----------------------------------------------------------------------------
-#define DEF_DIFF(name, val, tp, pt, funD)                                     \
+#define DEF_DIFF(name, val, tp, pt, arg, funD)                                \
 {                                                                             \
   if (n->key->type == tp && n->key->type != CNST && n->key->value == val)     \
   {                                                                           \
@@ -135,7 +134,7 @@ char differentiator (const char* fileInName,
 /* derivative of n */
 node *nodeCreateDerivative (node *n)
 {
-  //node *dN = nodeCtor ();
+  assert (n != NULL);
   #include "operations.h"
 
   node *dN = nodeCtor ();
@@ -146,7 +145,8 @@ node *nodeCreateDerivative (node *n)
 //-----------------------------------------------------------------------------
 char treeOptimization (node *n)
 {
-  //printf ("t");
+  assert (n != NULL);
+
   nodeOptimization (n);
 
   if (n->leftChild  != NULL)
@@ -166,7 +166,7 @@ char treeOptimization (node *n)
 //-----------------------------------------------------------------------------
 char nodeOptimization   (node *n)
 {
-  //printf ("n");
+  assert (n != NULL);
   if (n->key->type != OP)
   {
     return 0;
@@ -378,7 +378,7 @@ char nodeOptimization   (node *n)
   }
 }
 //-----------------------------------------------------------------------------
-#define DEF_DIFF(name, val, tp, pt, funD)                                     \
+#define DEF_DIFF(name, val, tp, pt, arg, funD)                                \
 {                                                                             \
   if (strcmp (name, buf) == 0)                                                \
   {                                                                           \
@@ -392,7 +392,8 @@ char nodeOptimization   (node *n)
 }
 tree *createTreeFromStr (char *str)
 {
-  //printf ("start str to tree \n");
+  assert (str != NULL);
+
   tree *t = treeCtor ();
   node *currentNode = t->rootNode;
 
@@ -436,19 +437,16 @@ tree *createTreeFromStr (char *str)
   }
   free (buf);
 
-  //printf ("end str to tree \n\n");
   treeOptimization (t->rootNode);
-  //printf ("end of optimization\n\n");
   return t;
 }
 #undef DEF_DIFF
 //-----------------------------------------------------------------------------
-#define DEF_DIFF(name, val, tp, pt, funD)                                     \
+#define DEF_DIFF(name, val, tp, pt, arg, funD)                                \
 {                                                                             \
   if (n->key->type == tp && n->key->value == val)                             \
   {                                                                           \
     fprintf (file, "%s", name);                                               \
-    /*printf ("found operation %s\n", name);*/                                \
     skip = 1;                                                                 \
   }                                                                           \
 }
@@ -512,16 +510,12 @@ char subTreeToFile (node *n, FILE *file)
 //-----------------------------------------------------------------------------
 char treeToFile (tree *t, const char *fileName)
 {
-  //printf ("start tree to file\n");
-
   assert (t        != NULL);
   assert (fileName != NULL);
 
   FILE *file = fopen (fileName, "w");
 
   subTreeToFile (t->rootNode, file);
-
-  //printf ("end tree to file\n\n");
 
   return 0;
 }
@@ -541,6 +535,8 @@ char *getCmd (char *str, char *cmd)
 //-----------------------------------------------------------------------------
 node *nodeCreateCopy (node *n)
 {
+  assert (n != NULL);
+
   node *nCopy =  nodeCtor ();
   nCopy->key  = ddataCtor ();
 
@@ -576,6 +572,9 @@ node *nodeCreate (node *leftChild, node *rightChild, d_data *key)
 //-----------------------------------------------------------------------------
 int isNodesNotSame (node *n1, node *n2)
 {
+  assert (n1 != NULL);
+  assert (n2 != NULL);
+
   if (n1->key->type     == n2->key->type &&
       n1->key->priority == n2->key->priority &&
       n1->key->value    == n2->key->value)
@@ -604,7 +603,7 @@ int isNodesNotSame (node *n1, node *n2)
   return 1;
 }
 
-char  treeRepair           (tree *t)
+char  treeRepair (tree *t)
 {
   assert (t != NULL);
 
@@ -616,14 +615,15 @@ char  treeRepair           (tree *t)
   return 0;
 }
 
-int  subTreeRepair        (node *n)
+
+int  subTreeRepair (node *n)
 {
   assert (n != NULL);
 
   if (n->leftChild != NULL && n->rightChild != NULL)
   {
-    n->leftChild->parent   = n;
-    n->leftChild->deepness = n->deepness + 1;
+    n->leftChild->parent    = n;
+    n->leftChild->deepness  = n->deepness + 1;
     n->rightChild->parent   = n;
     n->rightChild->deepness = n->deepness + 1;
     return subTreeRepair (n->rightChild) +
@@ -644,3 +644,4 @@ int  subTreeRepair        (node *n)
 
   return 0;
 }
+//-----------------------------------------------------------------------------
