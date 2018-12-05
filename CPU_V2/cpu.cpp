@@ -5,9 +5,9 @@ typedef data_cpu data_t;
 
 #include "C:\Users\Lenovo\Documents\GitHub\safe-morning\Stack\Stack.cpp"
 
-const int RAM_MEMORY_SIZE = 512;
+const int RAM_MEMORY_SIZE = 8192;
 
-const int      REG_NUMBER = 4;
+const int      REG_NUMBER = 255;
 
 struct myCpu
 {

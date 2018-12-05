@@ -7,8 +7,8 @@
 #include <windows.h>
 #include "fileIO.cpp"
 //-----------------------------------------------------------------------------
-const char MAX_COMMAND_SIZE = 20;
-const double PI = 3.141592654;
+const char   MAX_COMMAND_SIZE = 20;
+const double PI               = 3.141592654;
 
 enum DIFF_VAR_TYPES
 {
@@ -93,7 +93,7 @@ char  treeRepair           (tree *t);
 int   subTreeRepair        (node *n);
 
 node *nodeCreateCopy       (node *n);
-node *nodeCreate           (node *leftChild, node *rightChild, d_data *key);
+node *nodeCreate           (d_data *key, node *leftChild, node *rightChild);
 
 #include "recursiveDescent.cpp"
 //-----------------------------------------------------------------------------
@@ -118,9 +118,11 @@ char differentiator (const char* fileInName,
   treeRepair (dT);
   treeToFile (dT, fileOutName);
   treeToFile (t, "expression.txt");
+
+  t  = treeDtor (t);
+  dT = treeDtor (dT);
   return 0;
 }
-
 //-----------------------------------------------------------------------------
 #define DEF_DIFF(name, val, tp, pt, arg, funD)                                \
 {                                                                             \
@@ -200,8 +202,8 @@ char nodeOptimization   (node *n)
     }
   }
   /* if both exist and left = 0 */
-  if (n-> leftChild != NULL && n->rightChild != NULL &&
-      n-> leftChild->key->value == 0)
+  if (n->leftChild != NULL && n->rightChild != NULL &&
+      n->leftChild->key->value == 0)
   {
     switch ((char) n->key->value)
     {
@@ -317,13 +319,13 @@ char nodeOptimization   (node *n)
       return 0;
     case '+' :
       n->leftChild = nodeDtor   (n->leftChild);
-      n->leftChild = nodeCreate (NULL, NULL, ddataCreate (CNST, 255, 2));
+      n->leftChild = nodeCreate (ddataCreate (CNST, 255, 2), NULL, NULL);
       n->key = ddataDtor (n->key);
       n->key = ddataCreate (OP, 20, '*');
       return 0;
     case '*' :
       n->rightChild = nodeDtor   (n->rightChild);
-      n->rightChild = nodeCreate (NULL, NULL, ddataCreate (CNST, 255, 2));
+      n->rightChild = nodeCreate (ddataCreate (CNST, 255, 2), NULL, NULL);
       n->key = ddataDtor (n->key);
       n->key = ddataCreate (OP, 20, '^');
       return 0;
@@ -397,8 +399,8 @@ tree *createTreeFromStr (char *str)
   tree *t = treeCtor ();
   node *currentNode = t->rootNode;
 
-  char *buf = (char *)calloc (MAX_COMMAND_SIZE, sizeof (*buf));
-  int  bufPos = 0;
+  char *buf    = (char *)calloc (MAX_COMMAND_SIZE, sizeof (*buf));
+  int   bufPos = 0;
 
   for (; *str != '\0'; str++)
   {
@@ -559,7 +561,7 @@ node *nodeCreateCopy (node *n)
   return nCopy;
 }
 //-----------------------------------------------------------------------------
-node *nodeCreate (node *leftChild, node *rightChild, d_data *key)
+node *nodeCreate (d_data *key, node *leftChild, node *rightChild)
 {
   node *n = nodeCtor ();
 
@@ -614,8 +616,7 @@ char  treeRepair (tree *t)
 
   return 0;
 }
-
-
+//-----------------------------------------------------------------------------
 int  subTreeRepair (node *n)
 {
   assert (n != NULL);

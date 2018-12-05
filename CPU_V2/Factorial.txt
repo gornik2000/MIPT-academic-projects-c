@@ -1,31 +1,6 @@
-;-----FACTORIAL PRINTER------
-
-	push in	
-	pop r2
-	push r2
-	call :fact
-	out
-	mya
-	end
-
-;----------------------------
-	
-:fact
-	;out
-	pop r1
-	push r2
-	push 1
-	jb :next
-		push r1
-		ret
-
-	:next
-		push r1
-		push r2
-		push 1
-		sub
-		pop r2
-		push r2
-		mul
-		call :fact
-		ret
+push 1.000000 
+push 2
+out
+pop r5 
+out 
+end

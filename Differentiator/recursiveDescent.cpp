@@ -1,6 +1,15 @@
 #include <ctype.h>
 //-----------------------------------------------------------------------------
-const int   MAX_COMMAND_LENGTH     = 8;
+///   G::=E'\0'
+///   E::=T{[+-]T}*
+///   T::=D{[*/]D}*
+///   D::=P{^P}*
+///   P::=(E)|N|S
+///
+///   N::=double number
+///   S::=string from base
+//-----------------------------------------------------------------------------
+const int   MAX_COMMAND_LENGTH     = 15;
 const char *TREE_STRING_FOR_INPUT = NULL;
 #define s TREE_STRING_FOR_INPUT
 
@@ -17,13 +26,19 @@ tree *getTree (const char *str)
   s = str;
   tree *t = treeCtor ();
 
-  t->rootNode = getE ();
-  if (*s != '\0')
+  if (*s == '\0')
   {
-    printf (" # ERROR! Incorrect data, 0 was not found in the end ");
+    printf (" # ERRPR! Empty inputted data\n");
     return t;
   }
-  assert (s != str);
+
+  t->rootNode = getE ();
+
+  if (*s != '\0')
+  {
+    printf (" # ERROR! Incorrect data, 0 was not found in the end\n");
+    return t;
+  }
 
   nodeOptimization (t->rootNode);
   return t;
@@ -41,16 +56,16 @@ node *getE (void)
     node *nRight = getT ();
     if (op == '+')
     {
-      nLeft = nodeCreate (nLeft,
-                          nRight,
-                          ddataCreate (OP, 30, '+')
+      nLeft = nodeCreate (ddataCreate (OP, 30, '+'),
+                          nLeft,
+                          nRight
                           );
     }
     else
     {
-      nLeft = nodeCreate (nLeft,
-                          nRight,
-                          ddataCreate (OP, 30, '-')
+      nLeft = nodeCreate (ddataCreate (OP, 30, '-'),
+                          nLeft,
+                          nRight
                           );
     }
   }
@@ -70,16 +85,16 @@ node *getT (void)
     node *nRight = getD ();
     if (op == '*')
     {
-      nLeft = nodeCreate (nLeft,
-                          nRight,
-                          ddataCreate (OP, 20, '*')
+      nLeft = nodeCreate (ddataCreate (OP, 20, '*'),
+                          nLeft,
+                          nRight
                           );
     }
     else
     {
-      nLeft = nodeCreate (nLeft,
-                          nRight,
-                          ddataCreate (OP, 20, '/')
+      nLeft = nodeCreate (ddataCreate (OP, 20, '/'),
+                          nLeft,
+                          nRight
                           );
     }
   }
@@ -96,9 +111,9 @@ node *getD (void)
     s++;
 
     node *nRight = getP ();
-    nLeft = nodeCreate (nLeft,
-                        nRight,
-                        ddataCreate (OP, 15, '^')
+    nLeft = nodeCreate (ddataCreate (OP, 15, '^'),
+                        nLeft,
+                        nRight
                         );
   }
 
@@ -111,7 +126,11 @@ node *getP (void)
   {
     s++;
     node *n = getE ();
-    assert (*s == ')');
+    if (*s != ')')
+    {
+      printf (" ERROR! ) was not found\n");
+      return n;
+    }
     s++;
     return n;
   }
@@ -141,9 +160,9 @@ node *getN (void)
     i++;
   }
 
-  return nodeCreate (NULL,
+  return nodeCreate (ddataCreate (CNST, 255, atof (number)),
                      NULL,
-                     ddataCreate (CNST, 255, atof (number))
+                     NULL
                     );
 }
 //-----------------------------------------------------------------------------
@@ -154,14 +173,14 @@ node *getN (void)
     switch (arg)                                                              \
     {                                                                         \
       case 0:                                                                 \
-        return nodeCreate (NULL,                                              \
+        return nodeCreate (ddataCreate (tp, pt, val),                         \
                            NULL,                                              \
-                           ddataCreate (tp, pt, val)                          \
+                           NULL                                               \
                           );                                                  \
       case 1:                                                                 \
-        return nodeCreate (getP (),                                           \
-                           NULL,                                              \
-                           ddataCreate (tp, pt, val)                          \
+        return nodeCreate (ddataCreate (tp, pt, val),                         \
+                           getP (),                                           \
+                           NULL                                               \
                           );                                                  \
       default:                                                                \
         printf (" # ERROR. Arg for constant was not inputted");               \
@@ -181,7 +200,7 @@ node *getS (void)
     #include "operations.h"
   }
 
-  printf (" # Command has not been readen\n");
+  printf (" # Command has not been read\n");
   return NULL;
 }
 #undef DEF_DIFF

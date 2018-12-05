@@ -17,5 +17,7 @@ int main ()
   differentiator ("data.txt", "out.txt", diffNumber);
   printf (" # Derivative was successfully counted\n"
           " # Thanks for using this program\n");
+
+  return 0;
 }
 //-----------------------------------------------------------------------------

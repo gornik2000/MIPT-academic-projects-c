@@ -1,21 +1,6 @@
-push in 
-call 5.000000 5.000000 
+push 1.000000 
+push 2.000000 
+out 
+pop r5 
 out 
 end 
-pop r1 
-push r1 
-push 1.000000 
-jb 15.000000 15.000000 
-push 1.000000 
-ret 
-push r1 
-push r1 
-push 1.000000 
-mul 
-pop r1 
-push r1 
-sub 
-push r1 
-push 1.000000 
-jb 17.000000 17.000000 
-ret 

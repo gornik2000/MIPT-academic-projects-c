@@ -1,9 +1,20 @@
+//-----------------------------------------------------------------------------
+///
+/// Words that can be used:
+///   x  y  z
+///   pi  e  phi  ls
+///   +  -  /  *  ^
+///   sin  cos  tan  cot
+///   arcsin  arccos  arctan  arccot
+///   ln  ()
+///
+//-----------------------------------------------------------------------------
 /* if you need optimization, add to optimization node function */
 /* name - value - type - priority - arg number - derivative function*/
 //-----------------------------------------------------------------------------
 #define D(n)         nodeCreateDerivative (n)
 #define C(n)         nodeCreateCopy (n)
-#define NC(k, l, r)  nodeCreate (l, r, k)
+#define NC(k, l, r)  nodeCreate (k, l, r)
 #define DC(t, p, v)  ddataCreate(t, p, v)
 //-----------------------------------------------------------------------------
 /* variables  */
@@ -125,6 +136,7 @@ DEF_DIFF ("^",      '^', OP, 15, 2,
                        );
             }
           })
+
 DEF_DIFF ("ln",     'l', OP, 10, 1,
           {
             dN = NC (DC (OP, 20, '*'),
@@ -138,6 +150,7 @@ DEF_DIFF ("ln",     'l', OP, 10, 1,
                          )
                      );
           })
+
 DEF_DIFF ("sin",    's', OP, 10, 1,
           {
             /* node - *, left - diff(), right - cos(copy) */
@@ -149,6 +162,7 @@ DEF_DIFF ("sin",    's', OP, 10, 1,
                          )
                      );
           })
+
 DEF_DIFF ("cos",    'c', OP, 10, 1,
           {
             /* node - *, right child - *, left child - diff(),
@@ -167,6 +181,7 @@ DEF_DIFF ("cos",    'c', OP, 10, 1,
                          )
                      );
           })
+
 DEF_DIFF ("tan",    't', OP, 10, 1,
           {
             dN = NC (DC (OP, 20, '*'),
@@ -183,6 +198,7 @@ DEF_DIFF ("tan",    't', OP, 10, 1,
                          )
                      );
           })
+
 DEF_DIFF ("cot",    '1', OP, 10, 1,
           {
             dN = NC (DC (OP, 20, '*'),
@@ -199,6 +215,7 @@ DEF_DIFF ("cot",    '1', OP, 10, 1,
                          )
                      );
           })
+
 DEF_DIFF ("arcsin", '2', OP, 10, 1,
           {
             dN = NC (DC (OP, 20, '*'),
@@ -224,6 +241,7 @@ DEF_DIFF ("arcsin", '2', OP, 10, 1,
                          )
                      );
           })
+
 DEF_DIFF ("arccos", '3', OP, 10, 1,
           {
             dN = NC (DC (OP, 20, '*'),
@@ -255,6 +273,7 @@ DEF_DIFF ("arccos", '3', OP, 10, 1,
                          )
                      );
           })
+
 DEF_DIFF ("arctan", '4', OP, 10, 1,
           {
             dN = NC (DC (OP, 20, '*'),
@@ -316,7 +335,7 @@ DEF_DIFF ("arccot", '5', OP, 10, 1,
 DEF_DIFF ("pi",  3.141592654, CNST, 255, 0, ;)
 DEF_DIFF ("e",   2.718281828, CNST, 255, 0, ;)
 DEF_DIFF ("phi", 1.618033989, CNST, 255, 0, ;)
-DEF_DIFF ("c",   299792458,   CNST, 255, 0, ;)
+DEF_DIFF ("lc",  299792458,   CNST, 255, 0, ;)
 //-----------------------------------------------------------------------------
 #undef D
 #undef NCC
