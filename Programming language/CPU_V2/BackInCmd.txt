@@ -1,0 +1,6 @@
+push 1.000000 
+push 2.000000 
+out 
+pop r5 
+out 
+end 

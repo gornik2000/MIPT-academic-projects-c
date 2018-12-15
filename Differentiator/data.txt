@@ -1,1 +1,1 @@
-sin(pi*x) + 9*y
+-sin(pi*x)
