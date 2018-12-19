@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <assert.h>
 //-----------------------------------------------------------------------------
-const char MAX_CHILDREN_NUMBER = 255;
+const char MAX_CHILDREN_NUMBER = 10;
 typedef tree_data node_data;
 
 struct my_node
@@ -15,7 +15,7 @@ struct my_node
   struct my_node *rightChild;
   struct my_node **child;
 
-  int children_num;
+  int childrenNum;
   int deepness;
 };
 
@@ -34,8 +34,8 @@ node *nodeCtor (void)
   n->rightChild = NULL;
   n->leftChild  = NULL;
 
-  n->children_num = 0;
-  n->deepness     = 0;
+  n->childrenNum = 0;
+  n->deepness    = 0;
   return n;
 }
 //-----------------------------------------------------------------------------
@@ -53,8 +53,8 @@ node *nodeDtor (node *n)
   n->rightChild = NULL;
 
 
-  n->children_num = 0;
-  n->deepness     = 0;
+  n->childrenNum = 0;
+  n->deepness    = 0;
 
   free (n);
   n = NULL;
@@ -116,12 +116,12 @@ node *treeSubDtor  (node *n)
     return n;
   }*/
 
-  for (int i = 0; i < n->children_num; i++)
+  for (int i = 0; i < n->childrenNum; i++)
   {
     n->child[i] = treeSubDtor (n->child[i]);
   }
 
-  n->children_num = 0;
+  n->childrenNum = 0;
   free (n);
   n = NULL;
 

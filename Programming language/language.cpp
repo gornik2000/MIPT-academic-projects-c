@@ -7,16 +7,19 @@
 #include <windows.h>
 #include "fileIO.cpp"
 #include "CPU_V2/cpuMain.cpp"
-#include <list>
 //-----------------------------------------------------------------------------
-int MAX_FUN_NUMBER = 100;
-int MAX_VAR_NUMBER = 100;
-
+/*#define DEF_DIFF(name, val, tp, pt, arg, funD)  op_#name = (val),
+enum operations
+{
+  #include "operations.h"
+};
+#undef DEF_DIFF //*/
+//-----------------------------------------------------------------------------
 struct myFunction
 {
   const char *name;
-  int         pos;
   char        argNum;
+  char        varNum;
 };
 typedef struct myFunction cmd_fun;
 
@@ -24,9 +27,21 @@ cmd_fun *funCtor (void)
 {
   cmd_fun *fun = (cmd_fun *)calloc (1, sizeof (*fun));
 
-  fun->argNum = -1;
+  fun->argNum = 0;
+  fun->varNum = 0;
   fun->name   = NULL;
-  fun->pos    = -1;
+
+  return fun;
+}
+
+cmd_fun *funDtor (cmd_fun *fun)
+{
+  fun->argNum = -1;
+  fun->varNum = -1;
+  fun->name   = NULL;
+
+  free (fun);
+  fun = NULL;
 
   return fun;
 }
@@ -51,12 +66,14 @@ cmd_var *varCtor (void)
 const char   MAX_COMMAND_SIZE = 20;
 const double PI               = 3.141592654;
 
-enum LANG_VAR_TYPES
+enum node_types
 {
+  PGM  = 0,
   CNST = 1, /* const can't be used */
   OP   = 2,
   VAR  = 3,
   CMD  = 4,
+  FUN  = 5,
 };
 
 /* type of diff_data value */
@@ -120,7 +137,7 @@ p_data *pdataCreate (char type, char priority, p_data_value value)
 char programCompilation    (const char *fileInName, const char *fileOutName);
 char codeTextToByteCode (char **codeText, int codeSize, int codeLines, const char *fileOutName);
 char strContent(const char *strMain, const char *strMinor);
-char *createWord (char *str);
+char *createWord (const char *str);
 char *nextWord (char *str);
 
 char programImplementation (const char *fileInName, const char *fileOutName);
@@ -135,10 +152,15 @@ char  subTreeToFile        (node *n, FILE *file);
 node *nodeCreateCopy       (node *n);
 node *nodeCreate           (p_data *key, node *leftChild, node *rightChild);
 
+char isSep                 (const char c);
+
+char treeToFile (tree *t, const char *fileName);
+
 #include "recursiveDescent.cpp"
 //-----------------------------------------------------------------------------
 char programCompilation    (const char *fileInName, const char *fileOutName)
 {
+  /*
   int codeSize  = 0;
   int codeLines = 0;
   char **codeText = createTextFromFile (fileInName, &codeSize, &codeLines);
@@ -151,85 +173,27 @@ char programCompilation    (const char *fileInName, const char *fileOutName)
   free (codeText);
   codeText = NULL;
 
-  return err;
+  return err; */
+
+  FILE *pgmFile = fopen (fileInName, "r");
+  int countSize = fileSize (pgmFile);
+
+  char *pgmCode = (char *)calloc (countSize + 10, sizeof (*pgmCode));
+  int pgmSize   = fread (pgmCode, sizeof (char), countSize, pgmFile);
+  /* we need pgmSize because it does not content \r\n, only \n */
+
+  fclose (pgmFile);
+  printf (" # read size %d, found size %d, data: \n%s", pgmSize, countSize, pgmCode);
+
+  tree *pgmTree = getTreeFromCode (pgmCode);
+
+  treeToFile (pgmTree, "OUTTREE.txt");
+  return 0;
 }
-
-#define DEF_DIFF(name, val, tp, pt, arg, fun)                                 \
-{                                                                             \
-  if (strContent(word, name))                                                 \
-  {                                                                           \
-    printf ("op found %s\n", name);                                           \
-    continue;                                                                 \
-  }                                                                           \
-}
-char codeTextToByteCode (char **codeText, int codeSize, int codeLines, const char *fileOutName)
-{
-  cmd_fun *funArr[MAX_FUN_NUMBER] = {};
-  cmd_var *varArr[MAX_VAR_NUMBER] = {};
-  char *word = NULL;
-  int arrNum = 0;
-  int varNum = 0;
-  char skip = 0;
-
-  for (int i = 0; i < codeLines; i++)
-  {
-    word = codeText[i];
-    if (strContent(word, "def"))
-    {
-      //printf ("\nstarted\n");
-      word = nextWord (word);
-      funArr[arrNum] = funCtor ();
-      funArr[arrNum]->name = createWord (word);
-      while (word[0] != '\0')
-      {
-        //printf ("circle for arguments word %s\n", word);
-        word = nextWord (word);
-        //printf ("circle for arguments word %s\n", word);
-        funArr[arrNum]->argNum = funArr[arrNum]->argNum + 1;
-        //printf ("\nok\n");
-      }
-      arrNum ++;
-      continue;
-      //printf ("it ended \n");
-    }
-    for (; *word == '\t'; word++);
-
-    #include "operations.h"
-
-    skip = 0;
-    for (int j = 0; j < varNum; j++)
-    {
-      if (strContent (word, varArr[j]->name))
-      {
-        printf ("-- %s - %s \n", word, varArr[j]->name);
-        skip = 1;
-        break;
-      }
-    }
-    if (skip)
-    {
-      continue;
-    }
-
-    varArr[varNum] = varCtor ();
-    varArr[varNum]->name = createWord (word);
-    varNum ++;
-  }
-  for (int i = 0; i < arrNum; i++)
-  {
-    printf ("-> function %s arguments %d\n", funArr[i]->name, funArr[i]->argNum);
-  }
-
-  for (int i = 0; i < varNum; i++)
-  {
-    printf ("-> variable %s\n", varArr[i]->name);
-  }
-}
-#undef DEF_DIFF
 
 char *nextWord (char *str)
 {
-  /* skip previous name */
+
   while (*str != ' ' && *str != ',' &&
          *str != '(' && *str != ')' &&
          *str != '\0')
@@ -237,7 +201,6 @@ char *nextWord (char *str)
     str++;
   }
 
-  /* skip to next name */
   while (*str == ':' || *str == ' ' ||
          *str == '(' || *str == ')' ||
          *str == ',')
@@ -249,7 +212,7 @@ char *nextWord (char *str)
   return str;
 }
 
-char *createWord (char *str)
+char *createWord (const char *str)
 {
   assert (str != NULL);
 
@@ -300,85 +263,7 @@ tree *codeToTree (char **text, int size, int lines)
 {
   return 0;
 }
-//-----------------------------------------------------------------------------
-#define DEF_DIFF(name, val, tp, pt, arg, funD)                                \
-{                                                                             \
-  if (n->key->type == tp && n->key->value == val)                             \
-  {                                                                           \
-    fprintf (file, "%s", name);                                               \
-    skip = 1;                                                                 \
-  }                                                                           \
-}
-char subTreeToFile (node *n, FILE *file)
-{
-  assert (n    != NULL);
-  assert (file != NULL);
 
-  if (n->key != NULL && n->rightChild == NULL)
-  {
-    char skip = 0;
-    #include "operations.h"
-
-    if (skip == 0)
-    {
-      fprintf (file, "%.2lf", n->key->value);
-    }
-  }
-
-  if (n->leftChild != NULL)
-  {
-    if (n->leftChild->key->priority > n->key->priority)
-    {
-      fprintf       (file, "(");
-      subTreeToFile (n->leftChild, file);
-      fprintf       (file, ")");
-    }
-    else
-    {
-      subTreeToFile (n->leftChild, file);
-    }
-  }
-
-  if (n->key != NULL && n->rightChild != NULL)
-  {
-    char skip = 0;
-    #include "operations.h"
-
-    if (skip == 0)
-    {
-      printf ("found value %lf\n", n->key->value);
-      fprintf (file, "%lf", n->key->value);
-    }
-  }
-
-  if (n->rightChild != NULL)
-  {
-    if (n->rightChild->key->priority > n->key->priority)
-    {
-      fprintf       (file, "(");
-      subTreeToFile (n->rightChild, file);
-      fprintf       (file, ")");
-    }
-    else
-    {
-      subTreeToFile (n->rightChild, file);
-    }
-  }
-}
-#undef DEF_DIFF
-//-----------------------------------------------------------------------------
-char treeToFile (tree *t, const char *fileName)
-{
-  assert (t        != NULL);
-  assert (fileName != NULL);
-
-  FILE *file = fopen (fileName, "w");
-
-  subTreeToFile (t->rootNode, file);
-
-  return 0;
-}
-//-----------------------------------------------------------------------------
 char *getCmd (char *str, char *cmd)
 {
   int cmdPos = 0;
@@ -391,7 +276,7 @@ char *getCmd (char *str, char *cmd)
 
   return str - 1;
 }
-//-----------------------------------------------------------------------------
+
 node *nodeCreateCopy (node *n)
 {
   assert (n != NULL);
@@ -417,15 +302,74 @@ node *nodeCreateCopy (node *n)
 
   return nCopy;
 }
-//-----------------------------------------------------------------------------
+
 node *nodeCreate (p_data *key, node *leftChild, node *rightChild)
 {
   node *n = nodeCtor ();
 
-  n->leftChild  = leftChild;
-  n->rightChild = rightChild;
-  n->key        = key;
+  n->child[0] = leftChild;
+  n->child[1] = rightChild;
+  n->key      = key;
 
   return n;
-}
+} //*/
 //-----------------------------------------------------------------------------
+char isSep (const char c)
+{
+  if (c == ' ' ) return 1;
+  if (c == '(' ) return 1;
+  if (c == ')' ) return 1;
+  if (c == '\n') return 1;
+  if (c == '\0') return 1;
+  if (c == ':' ) return 1;
+  if (c == '\t') return 1;
+  if (c == ',' ) return 1;
+  if (c == ';' ) return 1;
+  if (c == '[' ) return 1;
+  if (c == ']' ) return 1;
+
+  return 0;
+}
+
+char subTreeToFile (node *n, FILE *file);
+
+char treeToFile (tree *t, const char *fileName)
+{
+  assert (t        != NULL);
+  assert (fileName != NULL);
+
+  FILE *file = fopen (fileName, "w");
+
+  subTreeToFile (t->rootNode, file);
+}
+
+char subTreeToFile (node *n, FILE *file)
+{
+  assert (n    != NULL);
+  assert (file != NULL);
+
+  if (n->key != NULL)
+  {
+    tabFprint (file, n->deepness);
+    fprintf   (file, "%s\n", *n->key);
+  }
+
+  if (n->leftChild != NULL)
+  {
+    tabFprint     (file, n->deepness + 1);
+    fprintf       (file, "{\n");
+    subTreeToFile (n->leftChild, file);
+    tabFprint     (file, n->deepness + 1);
+    fprintf       (file, "}\n");
+  }
+
+  if (n->rightChild != NULL)
+  {
+    tabFprint     (file, n->deepness + 1);
+    fprintf       (file, "{\n");
+    subTreeToFile (n->rightChild, file);
+    tabFprint     (file, n->deepness + 1);
+    fprintf       (file, "}\n");
+  }
+}
+

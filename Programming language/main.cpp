@@ -4,7 +4,7 @@
 //-----------------------------------------------------------------------------
 int main ()
 {
-  printf (" # Language 0.1\n"
+  printf (" # Language 0.2\n"
           " # This program is used to compile programs on my language \n"
           " # Input code in \"code.txt\""
           " # Output can be found in \"out.txt\". Good luck! \n\n");

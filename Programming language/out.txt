@@ -1,1 +1,1 @@
-pi*cos(pi*x)+9.00
+def man
