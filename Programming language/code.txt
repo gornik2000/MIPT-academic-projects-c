@@ -1,2 +1,14 @@
-a = 3
-return 3
+def max(a,b):
+	d = b
+	if(a > b):
+		d = a
+	return d
+def min(a,b):
+	d = b
+	if(a < b):
+		d = a
+	return d
+print min(25,100)
+if (5 > 2):
+	print 1000
+return 0

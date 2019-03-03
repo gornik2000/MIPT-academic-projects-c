@@ -1,6 +1,14 @@
-push 1.000000 
-push 2.000000 
-out 
-pop r5 
+push 12.000000 
+push 32.000000 
+push 3.000000 
+mul 
+add 
+sin 
+pop [0.000000] 
+push [0.000000] 
+push 2.718282 
+add 
+pop [1.000000] 
+push [1.000000] 
 out 
 end 

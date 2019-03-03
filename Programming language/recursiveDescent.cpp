@@ -15,30 +15,35 @@
 ///   V::=variable from base
 ///   F::=function from base
 //-----------------------------------------------------------------------------
-const int   MAX_COMMAND_LENGTH    = 15;
+const int   MAX_COMMAND_LENGTH    = 30;
 const char *TREE_STRING_FOR_INPUT = NULL;
 const char  MAX_FUN_NUMBER        = 100;
 const char  MAX_VAR_NUMBER        = 100;
 
-cmd_fun *funArr[MAX_FUN_NUMBER] = {0};
-char funNumber = 0;
-int    curLine = 1;
+cmd_fun *funArr[MAX_FUN_NUMBER]   = {0};
+char funNumber                    = 0;
+int    curLine                    = 1;
+int    curTabs                    = 0;
 #define s TREE_STRING_FOR_INPUT
 
 tree *getTreeFromCode (const char *str);
 node *getDef     (void); // def function
 node *getLine    (char **varNames); // code line
 
+node *getA       (char **varNames); // =
+node *getC       (char **varNames); // <= >= != ==
 node *getE       (char **varNames); // +-
 node *getT       (char **varNames); // */
 node *getD       (char **varNames); // ^
 node *getP       (char **varNames); // () ...
 node *getC       (char **varNames); // <= >= != ==
-node *getA       (char **varNames); // =
 
 node *getS       (char **varNames); // string operation
 node *getN       (void); // double number
 
+char getTab      (void);
+
+char checkTabs   (void);
 char *getName    (void); // function name
 char skipSpace   (void);
 char skipComment (void);
@@ -85,7 +90,7 @@ tree *getTreeFromCode (const char *str)
     printf ("\t\t%s\n", funArr[i]->name);    \
   printf (" # Variable count in program %d\n", varNumber);
   printf (" # Program's variables: \n");     \
-  for (int i = 0; varNames[i] != NULL; i++)        \
+  for (int i = 0; varNames[i] != NULL; i++)  \
     printf ("\t\t%s\n", varNames[i]);        \
   printf ("\n");
 
@@ -98,10 +103,11 @@ node *getLine    (char **varNames)
 {
   assert (varNames != NULL);
 
-  while (*s == '\t')
-  {
-    s++;
-  }
+  curTabs = getTab ();
+  //while (*s == '\t')
+  //{
+  //  s++;
+  //}
 
   node *n = getA (varNames);
 
@@ -110,7 +116,9 @@ node *getLine    (char **varNames)
 
   if (*s != '\n' && *s != '\0')
   {
+    //s-=2;
     printf (" # ERROR. Wrong data was found in line %d : [%c]\n", curLine, *s);
+    //printf (" # and the line was %s\n\n", s);
     return n;
   }
   s++;
@@ -182,15 +190,30 @@ node *getDef  (void)
     printf ("\t\t%s\n", varNames[i]);                                         \
   printf ("\n");
 
+  //int startTabs = curTabs;
   while (*s == '\t')
   {
     *s ++;
   }
 
-  for (int i = 0; *s != 'r'; i++)
+  int i = 0;
+  int skip = 0;
+  while (skip == 0)
   {
     n->child[i] = getLine (varNames);
+    if (n->child[i]->key->value == 10)
+    {
+      skip = 1;
+    }
+    i++;
   }
+
+  n->childrenNum = i;
+
+  /*for (int i = 0; *s != 'r'; i++)
+  {
+    n->child[i] = getLine (varNames);
+  }*/
 
   funNumber ++;
   return n;
@@ -223,7 +246,7 @@ node *getA (char **varNames)
 
   if (*s == '=')
   {
-    printf ("---->GOT = <----\n");
+    printf ("---->GOT = getA <----\n");
     int op = 1; // "=" value
 
     s++;
@@ -248,10 +271,10 @@ node *getC (char **varNames)
 
   node *nLeft = getE (varNames);
 
-  while (*s == '<' && *(s + 1) == '=' || *s == '>' && *(s + 1) == '=' ||
-         *s == '=' && *(s + 1) == '=' || *s == '!' && *(s + 1) == '=')
+  if (*s == '<' && *(s + 1) == '=' || *s == '>' && *(s + 1) == '=' ||
+      *s == '=' && *(s + 1) == '=' || *s == '!' && *(s + 1) == '=')
   {
-    printf ("---->GOT %c%c <----\n", *s, *(s + 1));
+    printf ("---->GOT %c%c getC <----\n", *s, *(s + 1));
 
     int op = 0;
     if (*s == '<' && *(s + 1) == '=' ) op = 14;
@@ -259,26 +282,28 @@ node *getC (char **varNames)
     if (*s == '=' && *(s + 1) == '=' ) op = 13;
     if (*s == '!' && *(s + 1) == '=' ) op = 32;
 
-    s += 2;
+    printf (" GOT OP %d", op);
+    s++;
+    s++;
     if (*s == ' ')
     {
       s++;
     }
 
-    node *nRight = getE (varNames);
+    node *nRight = getP (varNames);
     nLeft = nodeCreate (pdataCreate (OP, 15, op),
                         nLeft,
                         nRight
                         );
   }
-
-  while (*s == '<' || *s == '>')
+  else if (*s == '<' || *s == '>')
   {
-    printf ("---->GOT %c <----\n", *s);
+    printf ("---->GOT %c  getC <----\n", *s);
 
     int op = 0;
     if (*s == '<') op = 11;
     if (*s == '>') op = 12;
+    //if (*s == '~') op = 13;
 
     s ++;
     if (*s == ' ')
@@ -304,7 +329,7 @@ node *getE (char **varNames)
 
   while (*s == '+' || *s == '-')
   {
-    printf ("---->GOT %c <----\n", *s);
+    printf ("---->GOT %c getE <----\n", *s);
 
     int op = 0;
     if (*s == '+') op = 30;
@@ -334,7 +359,7 @@ node *getT (char **varNames)
 
   while (*s == '*' || *s == '/')
   {
-    printf ("---->GOT %c <----\n", *s);
+    printf ("---->GOT %c getT <----\n", *s);
 
     int op = 0;
     if (*s == '*') op = 34;
@@ -364,7 +389,7 @@ node *getD (char **varNames)
 
   while (*s == '^')
   {
-    printf ("---->GOT ^ <----\n");
+    printf ("---->GOT ^ getD <----\n");
 
     int op = 33;
 
@@ -391,10 +416,11 @@ node *getP (char **varNames)
   if (*s == '(')
   {
     s++;
-    node *n = getE (varNames);
+    node *n = getC (varNames);
     if (*s != ')')
     {
       printf (" ERROR! ) was not found\n");
+      printf ("      %c was found\n", *s);
       return n;
     }
     s++;
@@ -408,7 +434,7 @@ node *getP (char **varNames)
   //if (isalpha (*(s)))
   //{
     /* think about it */
-    return getS (varNames);
+  return getS (varNames);
   //}
 
   //s++;
@@ -431,7 +457,7 @@ node *getN (void)
   {
     s++;
   }
-  printf ("---->GOT %lf <----\n", atof(number));
+  printf ("---->GOT %lf getN <----\n", atof(number));
 
   return nodeCreate (pdataCreate (CNST, 255, atof (number)),
                      NULL,
@@ -456,10 +482,38 @@ node *getN (void)
                            NULL                                               \
                           );                                                  \
       case 3:                                                                 \
-        return nodeCreate (pdataCreate (tp, pt, val),                         \
-                           getP (varNames),                                   \
-                           NULL                                               \
-                          );                                                  \
+      {                                                                       \
+        node *n = nodeCtor ();                                                \
+        n->key  = pdataCreate (tp, pt, val);                                  \
+        if (*s != '(')                                                        \
+        {                                                                     \
+            printf (" # ERROR No ( in line %d got \"%c\"\n", curLine, *s);    \
+        }                                                                     \
+        n->child[0] = getA (varNames);                                        \
+        if (*s != ':')                                                        \
+        {                                                                     \
+            printf (" # ERROR No : in line %d got \"%c\"\n", curLine, *s);    \
+        }                                                                     \
+        s++;                                                                  \
+        skipSpace   ();                                                       \
+        skipComment ();                                                       \
+        s++;                                                                  \
+        curLine++;                                                            \
+                                                                              \
+        int startTabs = curTabs;                                              \
+        printf ("TABS %d\n", startTabs);                                      \
+        int i = 1;                                                            \
+        int skip = 0;                                                         \
+        while (checkTabs() - 1 == startTabs)                                  \
+        {                                                                     \
+          printf (" CIRCLE SKIP\n");                                          \
+          n->child[i] = getLine (varNames);                                   \
+          i++;                                                                \
+        }                                                                     \
+        printf (" CHILISH %d ---- \n", i);                                    \
+        n->childrenNum = i;                                                   \
+        return n;                                                             \
+      }                                                                       \
       case 4:                                                                 \
         return nodeCreate (pdataCreate (tp, pt, val),                         \
                            NULL,                                              \
@@ -479,30 +533,57 @@ node *getS (char **varNames)
 {
   assert (varNames != NULL);
 
-  //char buf[MAX_COMMAND_LENGTH] = {0};
   int i = 0;
 
   char *buf = getName ();
-  printf ("---->GOT %s <----\n", buf);
+  printf ("---->GOT %s getS <----\n", buf);
   if (*s == ' ')
   {
     s++;
   }
-  //printf (" ended with %c -\n", *s);
+
   // op check
   #include "operations.h"
+
   // function check
-  for (int i = 0; i < funNumber + 1; i++)
+  for (int i = 0; i < funNumber; i++)
   {
     if (strcmp (funArr[i]->name, buf) == 0)
     {
       printf (" fun found %s\n", buf);
       /* different number of vars */
-      return nodeCreate (pdataCreate(FUN, 0, i),
-                         NULL,
-                         NULL);
+      node *n = nodeCtor ();
+      n->key  = pdataCreate (FUN, 0, i);
+
+      if (*s != '(')
+      {
+        printf (" # ERROR. \"(\" was not found in line %d\n", curLine);
+        printf ("   %c was found\n", *s);
+        return n;
+      }
+      s++;
+      int j = 0;
+      while (*s != ')')
+      {
+        n->child[j] = getP (varNames);
+        j++;
+
+        if (*s != ',' && *s != ')')
+        {
+          printf (" # ERROR. \",\" was not found in line %d\n", curLine);
+          return n;
+        }
+        if (*s == ',')
+        {
+          s++;
+        }
+      }
+      s++;
+
+      return n;
     }
   }
+
   // var check
   for (int i = 0; varNames[i] != NULL; i++)
   {
@@ -522,7 +603,7 @@ node *getS (char **varNames)
 }
 #undef DEF_DIFF
 //-----------------------------------------------------------------------------
-/* starts space */
+/* starts with space */
 char skipSpace   (void)
 {
   while (*s == ' ')
@@ -531,7 +612,7 @@ char skipSpace   (void)
   }
   return 0;
 }
-
+//-----------------------------------------------------------------------------
 /* starts from comment, ends with \n or \0 */
 char skipComment (void)
 {
@@ -570,6 +651,7 @@ int getVarCount (char **varNames, const char *str, int varNum)
 
   while (strcmp (command, "return") != 0)
   {
+    printf (" # try command %s\n", command);
     // op check
     #include "operations.h"
     // function check
@@ -589,8 +671,10 @@ int getVarCount (char **varNames, const char *str, int varNum)
       }
     }
 
+    printf ("commands %s\n", command);
     varNames[varNum] = command;
     varNum++;
+
     command = (char *)calloc (MAX_COMMAND_LENGTH, sizeof (*command));
 
     getVarCount_skip_iteration:
@@ -602,23 +686,41 @@ int getVarCount (char **varNames, const char *str, int varNum)
     str++;
 
     for (;*str == '\t'; str++);
-    //memset (command, 0, MAX_COMMAND_LENGTH);
+    memset (command, 0, MAX_COMMAND_LENGTH);
     //command = getName ();
 
     for (int i = 0; !isSep (*str); i++)
     {
       command[i] = *str;
       str++;
-    }
+    } //*/
   }
 
   //for (int i = 0; i < varNum; i++)
     //printf (" )))) var %s\n", varNames[i]);
-
   return varNum;
 }
 #undef DEF_DIFF
-
+//-----------------------------------------------------------------------------
+char getTab (void)
+{
+  int i = 0;
+  while (*s == '\t')
+  {
+    s++;
+    i++;
+  }
+  return i;
+}
+//-----------------------------------------------------------------------------
+char checkTabs (void)
+{
+  int i = 0;
+  while (s[i] == '\t')
+  {
+    i++;
+  }
+  return i;
+}
+//-----------------------------------------------------------------------------
 #undef s
-
-

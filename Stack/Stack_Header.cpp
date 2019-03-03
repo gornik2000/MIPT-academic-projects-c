@@ -106,7 +106,7 @@ void stackDtor (stack_t *s);
 void  stackPush (stack_t *s, data_t number);
 data_t stackPop (stack_t *s);
 
-void stackChangeCapacity (stack_t *s, float changeValue);
+void stackChangeCapacity   (stack_t *s, float changeValue);
 
 elem_t stackReturnCapacity (stack_t *s);
 elem_t stackReturnSize     (stack_t *s);

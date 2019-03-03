@@ -363,3 +363,4 @@ CPU_DEF_CMD ( mya, 63, 0,
   printf ("^_^\n");
   *ipCmd += 1;
 })
+

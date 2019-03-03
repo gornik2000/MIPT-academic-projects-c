@@ -1,6 +1,20 @@
-push 1.000000 
-push 2
+push 1000
+pop +0
+
+push 100
+pop r0
+push 500
+
+pop +10
+push +10
+push [110]
+
+push r0
+push -100
+add
+pop r0
+
+push +0
+
 out
-pop r5 
-out 
 end

@@ -89,3 +89,9 @@
 	div
 	sub
 	ret
+	
+def sum(a,b):
+	c = a + b
+	return 0
+def mul(d,c):
+	return(a + b)

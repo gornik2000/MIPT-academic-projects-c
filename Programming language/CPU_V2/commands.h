@@ -38,6 +38,11 @@ CPU_DEF_CMD (push,  4, 2,
       stackPush (&(cpu->mem), parBuf[*ipPar]);
       break;
 
+    case (type_dram):
+      //printf ("pos %d\n", (int)((cpu->reg)[0]+parBuf[*ipPar]));
+      stackPush (&(cpu->mem), (cpu->ram)[(int)((cpu->reg)[0] + parBuf[*ipPar])]);
+      break;
+
     case (type_inp):
     {
       data_cpu x = 0;
@@ -65,6 +70,11 @@ CPU_DEF_CMD ( pop,  5, 2,
 
     case (type_ram):
       (cpu->ram)[(int)parBuf[*ipPar]] = stackPop (&(cpu->mem));
+      break;
+
+    case (type_dram):
+      //printf ("pos %d\n", (int)((cpu->reg)[0]+parBuf[*ipPar]));
+      (cpu->ram)[(int)((cpu->reg)[0] + parBuf[*ipPar])] = stackPop (&(cpu->mem));
       break;
 
     case (type_lbl):
@@ -361,5 +371,53 @@ CPU_DEF_CMD ( ret, 62, 0,
 CPU_DEF_CMD ( mya, 63, 0,
 {
   printf ("^_^\n");
+  *ipCmd += 1;
+})
+
+CPU_DEF_CMD ( eql, 64, 0,
+{
+  data_cpu a = stackPop (&(cpu->mem));
+  data_cpu b = stackPop (&(cpu->mem));
+
+  if (a == b)
+      stackPush (&(cpu->mem),  1);
+  else
+      stackPush (&(cpu->mem), -1);
+  *ipCmd += 1;
+})
+
+CPU_DEF_CMD ( neql, 65, 0,
+{
+  data_cpu a = stackPop (&(cpu->mem));
+  data_cpu b = stackPop (&(cpu->mem));
+
+  if (a != b)
+      stackPush (&(cpu->mem),  1);
+  else
+      stackPush (&(cpu->mem), -1);
+  *ipCmd += 1;
+})
+
+CPU_DEF_CMD ( bgr, 66, 0,
+{
+  data_cpu a = stackPop (&(cpu->mem));
+  data_cpu b = stackPop (&(cpu->mem));
+
+  if (b >= a)
+      stackPush (&(cpu->mem),  1);
+  else
+      stackPush (&(cpu->mem), -1);
+  *ipCmd += 1;
+})
+
+CPU_DEF_CMD (smlr, 67, 0,
+{
+  data_cpu a = stackPop (&(cpu->mem));
+  data_cpu b = stackPop (&(cpu->mem));
+
+  if (b <= a)
+      stackPush (&(cpu->mem),  1);
+  else
+      stackPush (&(cpu->mem), -1);
   *ipCmd += 1;
 })

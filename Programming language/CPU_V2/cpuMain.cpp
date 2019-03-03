@@ -14,12 +14,12 @@ typedef double elem_cpu;
 #else
   const char *CMD_FILE_NAME       = "SolveQuadratic.txt";
 #endif
-
+//cpu_t cpu = {0};
 const char *BYTECODE_FILE_NAME  = "ByteCode.txt";
 const char *IN_COMP_FILE_NAME   = "BackInCmd.txt";
 
 //=============================================================================
-/*
+/*//
 int main ()
 {
   char mode = 0;
@@ -47,4 +47,4 @@ int main ()
 //    break;
   }
 }
-*/
+//*/

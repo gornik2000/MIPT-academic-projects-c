@@ -1,0 +1,10 @@
+def factorial(a):
+	c = 1
+	b = 1
+	while(c < a):
+		c = c + 1
+		b = b * c
+	return b
+number = input
+print factorial(number)
+return 0

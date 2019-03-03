@@ -1,6 +1,15 @@
-push 1.000000 
-push 2.000000 
-out 
-pop r5 
+push 1000.000000 
+pop 
+push 100.000000 
+pop r0 
+push 500.000000 
+pop 
+push 
+push [110.000000] 
+push r0 
+push -100.000000 
+add 
+pop r0 
+push 
 out 
 end 

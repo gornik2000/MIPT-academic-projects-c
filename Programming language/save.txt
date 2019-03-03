@@ -1,0 +1,39 @@
+def myao(a,b):
+	c = a * b
+	return(a * a + c * 2 + b * b)
+a = 5 > 2
+print sin(sqrt(a))
+print myao(a,4)
+return 0
+
+def fact(a):
+	if(2 > a):
+		d = 1
+		continue
+	return d
+d = input
+d = d - 1
+print fact(d)
+return 0
+
+def solveQuadtatic(a,b,c):
+	roots = 0
+	d = b * b - 4 * a * c
+	if(d > 0):
+		roots = 2
+		d1 = sqrt(d)
+		x1 =((0 - b)- d1)/(2*a)
+		x2 =((0 - b)+ d1)/(2*a)
+		print x1
+		print x2
+	if(d < 0):
+		roots = 0
+	if(d == 0):
+		roots = 1
+		x0 = (0 - b)/(2*a) 
+	return roots
+a = input
+b = input
+c = input
+print solveQuadtatic(a,b,c)
+return 0

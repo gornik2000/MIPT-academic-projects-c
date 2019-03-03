@@ -1,0 +1,22 @@
+def solveQuadtatic(a,b,c):
+	roots = 0
+	d = b * b - 4 * a * c
+	if (d > 0):  #two roots
+		roots = 2
+		d1 = sqrt(d)
+		x1 =((0 - b)- d1)/(2 * a)
+		x2 =((0 - b)+ d1)/(2 * a)
+		print x1
+		print x2
+	if (d < 0):  #zero roots
+		roots = 0
+	if (d == 0): #one root
+		roots = 1
+		x0 = (0 - b)/(2 * a)
+		print x0
+	return roots
+a = input
+b = input
+c = input
+print solveQuadtatic(a,b,c)
+return 0

@@ -1,0 +1,53 @@
+push 1
+pop r0
+push in
+pop +0
+mya
+push +0
+call :fn_factorial
+out
+pop
+push 0.000000
+end
+
+
+:fn_factorial
+push 20
+push r0
+add
+pop r0
+
+pop +0
+push 1.000000
+pop +1
+mya
+push 1.000000
+pop +2
+mya
+:start_0
+
+push 0
+push +0
+push +1
+smlr
+ja :end_0
+push +1
+push 1.000000
+add
+pop +1
+mya
+push +2
+push +1
+mul
+pop +2
+mya
+jmp :start_0
+:end_0
+
+push +2
+
+push r0
+push -20
+add
+pop r0
+ret
