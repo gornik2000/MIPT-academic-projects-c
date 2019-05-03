@@ -1,17 +1,15 @@
+//---------------------------------------------------------------------------*/
 #include <stdio.h>
 #include <assert.h>
 #include <stdlib.h>
-
-//-----------------------------------------------------------------------------
+//---------------------------------------------------------------------------*/
 /** list data - stack information, includes info prev and next*/
-
-const int POISON_DESTRUCTED = 0;
-
 /* which information will be in stack */
 typedef char *list_value;
+const list_value POISON_DESTRUCTED_VAL = 0;
 /* how this information should be inputed */
-#define VALUE_OUT "%8p"
-
+#define VALUE_OUT "%s"
+//---------------------------------------------------------------------------*/
 struct myListData
 {
   list_value       *value;
@@ -19,12 +17,11 @@ struct myListData
   struct myListData *next;
 };
 typedef struct myListData list_data;
-
+//---------------------------------------------------------------------------*/
 list_data *listDataCtor (void);
+list_data *listDataCtor (list_value value, myListData *prev, myListData *next);
 list_data *listDataDtor (list_data *ld);
-
-//-----------------------------------------------------------------------------
-
+//---------------------------------------------------------------------------*/
 /* data of the list constructor */
 list_data *listDataCtor (void)
 {
@@ -32,31 +29,44 @@ list_data *listDataCtor (void)
   assert (ld != NULL);
 
   ld->value = (list_value *)calloc (1, sizeof (*(ld->value)));
+  ld->prev  = 0;
+  ld->next  = 0;
 
-  ld->prev  = (list_data  *)calloc (1, sizeof (*(ld->prev)));
-
-  ld->next  = (list_data  *)calloc (1, sizeof (*(ld->next)));
-
+  //uses_ldctor += 1;
   return ld;
 }
+//---------------------------------------------------------------------------*/
+/* data of the list constructor */
+list_data *listDataCtor (list_value value, myListData *prev, myListData *next)
+{
+  list_data *ld = (list_data *)calloc (1, sizeof (*ld));
+  assert (ld != NULL);
 
+  ld->value = (list_value *)calloc (1, sizeof (*(ld->value)));
+  *(ld->value) = value;
+  ld->prev     = prev;
+  ld->next     = next;
+
+  //uses_ldctor += 1;
+  return ld;
+}
+//---------------------------------------------------------------------------*/
 /* data of the list destructor */
 list_data *listDataDtor (list_data *ld)
 {
   assert (ld != NULL);
 
-  *(ld->value) = POISON_DESTRUCTED;
+  *(ld->value) = POISON_DESTRUCTED_VAL;
   free (ld->value);
   (ld->value) = NULL;
 
   free (ld);
   ld = NULL;
 
+  //uses_lddtor += 1;
   return ld;
 }
-
-//-----------------------------------------------------------------------------
-
+//---------------------------------------------------------------------------*/
 struct myList
 {
   list_data *head;
@@ -64,9 +74,8 @@ struct myList
 
   int       count;
 };
-
 typedef struct myList list;
-
+//---------------------------------------------------------------------------*/
 list *listCtor (void);
 list *listDtor (list *l);
 
@@ -90,10 +99,9 @@ char listRemove (list *l, int num);
 char listErase  (list *l);
 
 char listVerification (list *l);
-
+//---------------------------------------------------------------------------*/
 #include "list_dump.cpp"
-//-----------------------------------------------------------------------------
-
+//---------------------------------------------------------------------------*/
 /* list constructor */
 list *listCtor (void)
 {
@@ -104,9 +112,10 @@ list *listCtor (void)
   l->tail  = 0;
   l->count = 0;
 
+  //uses_lctor += 1;
   return l;
 }
-
+//---------------------------------------------------------------------------*/
 /* list destructor */
 list *listDtor (list *l)
 {
@@ -116,14 +125,15 @@ list *listDtor (list *l)
 
   l->head  = NULL;
   l->tail  = NULL;
-  l->count = POISON_DESTRUCTED;
+  l->count = -1;
 
   free (l);
   l = NULL;
 
+  //uses_ldtor += 1;
   return l;
 }
-
+//---------------------------------------------------------------------------*/
 /* find element with given value */
 list_data *listFindValue (list *l, list_value value)
 {
@@ -138,7 +148,7 @@ list_data *listFindValue (list *l, list_value value)
     elem = elem->next;
   }
 }
-
+//---------------------------------------------------------------------------*/
 /* finds element with given num */
 list_data *listFindNum   (list *l, int num)
 {
@@ -160,7 +170,7 @@ list_data *listFindNum   (list *l, int num)
   }
   return elem;
 }
-
+//---------------------------------------------------------------------------*/
 /* insert element before given num */
 char listEmplaceFront (list *l, list_value value, int num)
 {
@@ -174,10 +184,9 @@ char listEmplaceFront (list *l, list_value value, int num)
   list_data *currentElem = listFindNum (l, num);
 
   list_data *elem = listDataCtor ();
-
-  elem->next  = currentElem;
-  *(elem->value) = value;
-  elem->prev  = currentElem->prev;
+  elem->next      = currentElem;
+  *(elem->value)  = value;
+  elem->prev      = currentElem->prev;
 
   if (elem->next == l->head)
   {
@@ -191,7 +200,7 @@ char listEmplaceFront (list *l, list_value value, int num)
 
   return ERR_NO_ERROR;
 }
-
+//---------------------------------------------------------------------------*/
 /* insert element after given num */
 char listEmplaceBack  (list *l, list_value value, int num)
 {
@@ -206,9 +215,9 @@ char listEmplaceBack  (list *l, list_value value, int num)
 
   list_data *elem = listDataCtor ();
 
-  elem->next  = currentElem->next;
+  elem->next     = currentElem->next;
   *(elem->value) = value;
-  elem->prev  = currentElem;
+  elem->prev     = currentElem;
 
   if (elem->prev == l->tail)
   {
@@ -222,15 +231,15 @@ char listEmplaceBack  (list *l, list_value value, int num)
 
   return ERR_NO_ERROR;
 }
-
+//---------------------------------------------------------------------------*/
 /* push first element to the list */
 char listPushFirst (list *l, list_value value)
 {
   list_data *elem = listDataCtor ();
 
-  elem->next  = elem;
+  elem->next     = elem;
   *(elem->value) = value;
-  elem->prev  = elem;
+  elem->prev     = elem;
 
   (l->count)++;
   l->head = elem;
@@ -238,7 +247,7 @@ char listPushFirst (list *l, list_value value)
 
   return ERR_NO_ERROR;
 }
-
+//---------------------------------------------------------------------------*/
 /* push element to front of the list */
 char listPushFront (list *l, list_value value)
 {
@@ -249,21 +258,18 @@ char listPushFront (list *l, list_value value)
     return listPushFirst (l, value);
   }
 
-  list_data *elem = listDataCtor ();
-
-  elem->next  = l->head;
-  *(elem->value) = value;
-  elem->prev  = l->tail;
+  list_data *elem = listDataCtor (value ,l->tail, l->head);
 
   (elem->next)->prev = elem;
   (elem->prev)->next = elem;
 
-  (l->count)++;
+  ++(l->count);
   l->head = elem;
 
+  //uses_lpush += 1;
   return ERR_NO_ERROR;
 }
-
+//---------------------------------------------------------------------------*/
 /* push element to back of the list */
 char listPushBack  (list *l, list_value value)
 {
@@ -276,9 +282,9 @@ char listPushBack  (list *l, list_value value)
 
   list_data *elem = listDataCtor ();
 
-  elem->next  = l->head;
+  elem->next     = l->head;
   *(elem->value) = value;
-  elem->prev  = l->tail;
+  elem->prev     = l->tail;
 
   (elem->prev)->next = elem;
   (elem->next)->prev = elem;
@@ -288,7 +294,7 @@ char listPushBack  (list *l, list_value value)
 
   return ERR_NO_ERROR;
 }
-
+//---------------------------------------------------------------------------*/
 /* remove element from list */
 char listRemove (list *l, int num)
 {
@@ -323,7 +329,7 @@ char listRemove (list *l, int num)
 
   return ERR_NO_ERROR;
 }
-
+//---------------------------------------------------------------------------*/
 /* erase list data */
 char listErase  (list *l)
 {
@@ -343,7 +349,7 @@ char listErase  (list *l)
 
   return ERR_NO_ERROR;
 }
-
+//---------------------------------------------------------------------------*/
 /* returns list head */
 list_data *listFront (list *l)
 {
@@ -351,7 +357,7 @@ list_data *listFront (list *l)
 
   return l->head;
 }
-
+//---------------------------------------------------------------------------*/
 /* returns list tail */
 list_data *listBack  (list *l)
 {
@@ -359,7 +365,7 @@ list_data *listBack  (list *l)
 
   return l->tail;
 }
-
+//---------------------------------------------------------------------------*/
 /* returns next list element */
 list_data *listNext     (list_data *ld)
 {
@@ -367,7 +373,7 @@ list_data *listNext     (list_data *ld)
 
   return ld->next;
 }
-
+//---------------------------------------------------------------------------*/
 /* returns previous list element */
 list_data *listPrevious (list_data *ld)
 {
@@ -375,7 +381,7 @@ list_data *listPrevious (list_data *ld)
 
   return ld->prev;
 }
-
+//---------------------------------------------------------------------------*/
 /* verification of the created list */
 char listVerification (list *l)
 {
@@ -388,21 +394,21 @@ char listVerification (list *l)
   {
     elem = elem->next;
   }
-  if (elem != l->tail) return ERR_PTR;
+  if (elem != l->tail)              return ERR_PTR;
 
   for (int i = 1; i < l->count; i++)
   {
     elem = elem->prev;
   }
-  if (elem != l->head) return ERR_PTR;
-
+  if (elem != l->head)              return ERR_PTR;
   if ((l->tail)->next != (l->head)) return ERR_HEAD_TAIL;
-
   if ((l->tail) != (l->head)->prev) return ERR_HEAD_TAIL;
 
   printf (" # VERIFICATION finished correctly \n");
 
   return ERR_NO_ERROR;
 }
+//---------------------------------------------------------------------------*/
+//               © Gorbachev Nikita, November 2018 - April 2019              //
+//---------------------------------------------------------------------------*/
 
-//----------------------------------------------------------------------------

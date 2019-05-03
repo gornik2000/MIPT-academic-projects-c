@@ -1,0 +1,35 @@
+	Started
+ ####################
+ # All time   24166 #
+ # Open time    171 #
+ # Add time    1879 #
+ # Out time      62 #
+ # End time    1236 #
+ ####################
+	Hash function written with asm.
+	Hash function became 3 times more effective in speed.
+ ####################
+ # All time   24015 #
+ # Open time    187 #
+ # Add time    1723 #
+ # Out time      62 #
+ # End time    1225 #
+ ####################
+	Improved ldctor algorithm.
+ ####################
+ # All time   23262 #
+ # Open time    203 #
+ # Add time     969 #
+ # Out time   20880 #
+ # End time    1210 #
+ ####################
+	Improved MapPrint algorithm.
+ ####################
+ # All time   12548 #
+ # Open time    188 #
+ # Add time     969 #
+ # Out time   10156 #
+ # End time    1235 #
+ ####################
+
+ 

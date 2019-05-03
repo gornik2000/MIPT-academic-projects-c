@@ -1,13 +1,10 @@
+//---------------------------------------------------------------------------*/
 #include <stdio.h>
 #include "list.cpp"
-
-//-----------------------------------------------------------------------------
-
-const char *MAP_LOG_FILE_NAME =  "map_logs.txt";
+//---------------------------------------------------------------------------*/
+const char *MAP_LOG_FILE_NAME =  "data_logs/map_logs.txt";
 FILE *MAP_LOG_FILE = fopen (MAP_LOG_FILE_NAME, "w");
-
-//-----------------------------------------------------------------------------
-
+//---------------------------------------------------------------------------*/
 const int MAX_MAP_SIZE = 10000;
 
 struct my_map
@@ -17,6 +14,7 @@ struct my_map
   int (*hash)(char *, int);
 };
 typedef struct my_map map;
+//---------------------------------------------------------------------------*/
 
 map *mapCtor (int (*hashFunction)(char *, int));
 map *mapDtor (map *m);
@@ -29,11 +27,9 @@ char mapPrint  (map *m);
 char myMapIsOk (map *m, int line, const char *funcName, const char* fileName);
 
 char mapToFile (map *m, FILE *file);
-
+//---------------------------------------------------------------------------*/
 #define mapIsOk(l) myMapIsOk ((m), __LINE__, __func__, __FILE__);
-
-//-----------------------------------------------------------------------------
-
+//---------------------------------------------------------------------------*/
 /* constructor */
 map *mapCtor (int (*hashFunction)(char *, int))
 {
@@ -49,9 +45,10 @@ map *mapCtor (int (*hashFunction)(char *, int))
     (m->data[i]) = listCtor ();
   }
 
+  //uses_mctor += 1;
   return m;
 }
-
+//---------------------------------------------------------------------------*/
 /* destructor */
 map *mapDtor (map *m)
 {
@@ -62,7 +59,6 @@ map *mapDtor (map *m)
     listDtor ((m->data)[i]);
   }
   m->maxSize = -1;
-
   m->hash = NULL;
 
   free (m->data);
@@ -71,9 +67,10 @@ map *mapDtor (map *m)
   free (m);
   m = NULL;
 
+  //uses_mdtor += 1;
   return m;
 }
-
+//---------------------------------------------------------------------------*/
 /* add element to map's list */
 char mapAdd    (map *m, list_value elem)
 {
@@ -88,9 +85,10 @@ char mapAdd    (map *m, list_value elem)
 
   listPushFront ((m->data)[num], elem);
 
+  //uses_add += 1;
   return ERR_NO_ERROR;
 }
-
+//---------------------------------------------------------------------------*/
 /* delete element (list) from stack */
 char mapDelete (map *m, int num)
 {
@@ -105,7 +103,7 @@ char mapDelete (map *m, int num)
 
   return ERR_NO_ERROR;
 }
-
+//---------------------------------------------------------------------------*/
 /* erase map data */
 char mapErase  (map *m)
 {
@@ -118,21 +116,24 @@ char mapErase  (map *m)
 
   return ERR_NO_ERROR;
 }
-
+//---------------------------------------------------------------------------*/
 /* print map data to file */
 char mapPrint (map *m)
 {
   assert (m != NULL);
+  char *buf = (char *) calloc (1, LOG_MAX_SIZE);
+  char *buf_start = buf;
 
   fprintf (LOG_FILE, "\n map: max size %8d\n", m->maxSize);
   for (int i = 0; i < m->maxSize; i++)
   {
-    listPrint ((m->data)[i]);
+    buf  = listPrintBuf ((m->data)[i], buf);
   }
 
+  fwrite (buf_start, buf - buf_start, 1, LOG_FILE);
   return ERR_NO_ERROR;
 }
-
+//---------------------------------------------------------------------------*/
 /* checks if map is correct */
 char myMapIsOk (map *m, int line, const char *funcName, const char* fileName)
 {
@@ -152,7 +153,7 @@ char myMapIsOk (map *m, int line, const char *funcName, const char* fileName)
 
   return ERR_NO_ERROR;
 }
-
+//---------------------------------------------------------------------------*/
 /* create file for graphics from map */
 char mapToFile (map *m, FILE *file)
 {
@@ -161,4 +162,6 @@ char mapToFile (map *m, FILE *file)
     fprintf (file, "%d\t%d\n", i, (m->data)[i]->count);
   }
 }
-
+//---------------------------------------------------------------------------*/
+//               © Gorbachev Nikita, November 2018 - April 2019              //
+//---------------------------------------------------------------------------*/

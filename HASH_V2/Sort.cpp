@@ -1,31 +1,13 @@
-//------------------------------------------------------------------------------
-/*!
-//  \file Sort.cpp
-//
-//  File which contains Comparators for text sorting
-*/
-//------------------------------------------------------------------------------
-
+//---------------------------------------------------------------------------*/
 #include <ctype.h>
 #include <string.h>
-
+//---------------------------------------------------------------------------*/
 int strLength (char *str);
 
 inline int strCompare (const void *lineOne, const void *lineTwo);
 
 inline int strCompareFromEnd (const void *lineOne, const void *lineTwo);
-
-//------------------------------------------------------------------------------
-/*!
-//  \fn int strLength (char *str)
-//
-//  Finds the length of the string
-//
-//  \param *str Pointers to string which length should be found
-//  \return Length of the string
-*/
-//------------------------------------------------------------------------------
-
+//---------------------------------------------------------------------------*/
 inline int strLength (char *str)
 {
   int length = 0;
@@ -33,19 +15,7 @@ inline int strLength (char *str)
 
   return length;
 }
-
-//------------------------------------------------------------------------------
-/*!
-//  \fn int strCompare (const void *lineOne, const void *lineTwo)
-//
-//  Comparator, compares two strings from the beginning alphabetically
-//  ignoring non letters
-//
-//  \param *lineOne,*lineTwo pointers to strings that should be compared
-//  \return negative number if lineOne < lineTwo, 0 if =, else a positive number
-*/
-//------------------------------------------------------------------------------
-
+//---------------------------------------------------------------------------*/
 inline int strCompare (const void *lineOne, const void *lineTwo)
 {
   /* makes letters */
@@ -65,19 +35,7 @@ inline int strCompare (const void *lineOne, const void *lineTwo)
 
   return *str1 - *str2;
 }
-
-//------------------------------------------------------------------------------
-/*!
-//  \fn int strCompareFromEnd (const void *lineOne, const void *lineTwo)
-//
-//  Comparator which compares two strings from the end alphabetically
-//  ignoring non letters
-//
-//  \param *lineOne,*lineTwo pointers to strings that should be compared
-//  \return negative number if lineOne < lineTwo, 0 if =, else a positive number
-*/
-//------------------------------------------------------------------------------
-
+//---------------------------------------------------------------------------*/
 inline int strCompareFromEnd(const void *lineOne, const void *lineTwo)
 {
   /* makes strings */
@@ -101,3 +59,6 @@ inline int strCompareFromEnd(const void *lineOne, const void *lineTwo)
 
   return *str1 - *str2;
 }
+//---------------------------------------------------------------------------*/
+//               © Gorbachev Nikita, November 2018 - April 2019              //
+//---------------------------------------------------------------------------*/

@@ -1,0 +1,94 @@
+PGM 0
+	FUN 0
+		OP = 1
+			VAR 1
+			CNST 1
+		OP if 2
+			OP > 12
+				VAR 0
+				CNST 1
+			OP = 1
+				VAR 1
+				OP * 34
+					VAR 0
+					FUN 0
+						OP - 31
+							VAR 0
+							CNST 1
+		OP return 10
+			VAR 1
+	FUN 1
+		OP = 1
+			VAR 1
+			CNST 1
+		OP if 2
+			OP > 12
+				VAR 0
+				CNST 1
+			OP = 1
+				VAR 2
+				FUN 1
+					OP - 31
+						VAR 0
+						CNST 1
+			OP = 1
+				VAR 3
+				FUN 1
+					OP - 31
+						VAR 0
+						CNST phi 2
+			OP = 1
+				VAR 1
+				OP + 30
+					VAR 2
+					VAR 3
+		OP return 10
+			VAR 1
+	FUN 2
+		OP putc 44
+			CNST 140
+		OP putc 44
+			CNST 159
+		OP putc 44
+			CNST 147
+		OP putc 44
+			CNST 10
+		OP return 10
+			CNST 0
+	FUN 3
+		OP print 43
+			OP get_h 45
+		OP print 43
+			OP get_m 46
+		OP return 10
+			CNST 0
+	FUN 3
+	FUN 2
+	OP = 1
+		VAR 0
+		OP input 42
+	OP while 5
+		OP != 32
+			VAR 0
+			CNST 0
+		OP print 43
+			FUN 0
+				VAR 0
+		OP = 1
+			VAR 0
+			OP input 42
+	OP = 1
+		VAR 1
+		OP input 42
+	OP while 5
+		OP != 32
+			VAR 1
+			CNST 0
+		OP print 43
+			FUN 1
+				VAR 1
+		OP = 1
+			VAR 1
+			OP input 42
+	OP return 10
+		CNST 0

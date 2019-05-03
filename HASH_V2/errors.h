@@ -1,3 +1,4 @@
+//---------------------------------------------------------------------------*/
 /* file for error generation */
 /* err num | err name | err description */
 ERR_DEF (0 , NO_ERROR,      "< without ERRORS >"          )
@@ -10,4 +11,8 @@ ERR_DEF (6 , SIZE_PROBLEM,  "< problems with cur size >"  )
 ERR_DEF (7 , INV_SIZE,      "< problems with max size >"  )
 ERR_DEF (8 , PTR,           "< incorrect point >"         )
 ERR_DEF (9 , HEAD_TAIL,     "< head don't point to tail >")
+//---------------------------------------------------------------------------*/
+//               © Gorbachev Nikita, November 2018 - April 2019              //
+//---------------------------------------------------------------------------*/
+
 

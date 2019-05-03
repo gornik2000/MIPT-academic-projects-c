@@ -1,7 +1,8 @@
+//---------------------------------------------------------------------------*/
 #include "Sort.cpp"
 #include <math.h>
 #include <ctype.h>
-
+//---------------------------------------------------------------------------*/
 static const unsigned char sTable[256] =
 {
   0xa3,0xd7,0x09,0x83,0xf8,0x48,0xf6,0xf4,0xb3,0x21,0x15,0x78,0x99,0xb1,0xaf,0xf9,
@@ -21,46 +22,49 @@ static const unsigned char sTable[256] =
   0x08,0x77,0x11,0xbe,0x92,0x4f,0x24,0xc5,0x32,0x36,0x9d,0xcf,0xf3,0xa6,0xbb,0xac,
   0x5e,0x6c,0xa9,0x13,0x57,0x25,0xb5,0xe3,0xbd,0xa8,0x3a,0x01,0x05,0x59,0x2a,0x46
 };
-
-//-----------------------------------------------------------------------------
-
-/* 0 */
+//---------------------------------------------------------------------------*/
+/* 0              */
 int hashFunction1 (char *str, int size);
-/* str[0] */
+/* str[0]         */
 int hashFunction2 (char *str, int size);
-/* str Length */
+/* str Length     */
 int hashFunction3 (char *str, int size);
-/* str sum */
+/* str sum        */
 int hashFunction4 (char *str, int size);
-/* average char */
+/* average char   */
 int hashFunction5 (char *str, int size);
-/* ded function */
+/* ded function   */
 int hashFunction6 (char *str, int size);
-
-//-----------------------------------------------------------------------------
-
+/* gnu            */
+int hashFunction7 (char *str, int size);
+/* internet extra */
+int hashFunction8 (char *str, int size);
+/* own function */
+int hashFunction9 (char *str, int size);
+/* binary optimized own function */
+int hashFunction10 (char *str, int size);
+//---------------------------------------------------------------------------*/
 int hashFunction1 (char *str, int size)
 {
   assert (str != NULL);
 
   return 0;
 }
-
+//---------------------------------------------------------------------------*/
 int hashFunction2 (char *str, int size)
 {
   assert (str != NULL);
 
-  return str[0] % size;
+  return *str % size;
 }
-
+//---------------------------------------------------------------------------*/
 int hashFunction3 (char *str, int size)
 {
   assert (str != NULL);
 
   return strLength (str) % size;
-
 }
-
+//---------------------------------------------------------------------------*/
 int hashFunction4 (char *str, int size)
 {
   assert (str != NULL);
@@ -76,7 +80,7 @@ int hashFunction4 (char *str, int size)
   }
   return sum % size;
 }
-
+//---------------------------------------------------------------------------*/
 int hashFunction5 (char *str, int size)
 {
   assert (str != NULL);
@@ -93,7 +97,7 @@ int hashFunction5 (char *str, int size)
 
   return (sum / i) % size;
 }
-
+//---------------------------------------------------------------------------*/
 /* random one */
 int hashFunction6 (char *str, int size)
 {
@@ -109,7 +113,7 @@ int hashFunction6 (char *str, int size)
 
   return hash;
 }
-
+//---------------------------------------------------------------------------*/
 /* gnu */
 int hashFunction7 (char *str, int size)
 {
@@ -124,12 +128,10 @@ int hashFunction7 (char *str, int size)
   }
   return abs (count % size);
 }
-
+//---------------------------------------------------------------------------*/
 /* extra one from internet */
 int hashFunction8 (char *str, int size)
 {
-  long int count = 5381;
-
   unsigned int hash = 0;
   unsigned int rotate = 2;
   unsigned int seed = 0x1A4E41U;
@@ -146,3 +148,39 @@ int hashFunction8 (char *str, int size)
   }
   return (hash + i) * seed % size;
 }
+//---------------------------------------------------------------------------*/
+/* own function */
+int hashFunction9 (char *str, int size)
+{
+  unsigned long int hash = 0;
+
+  while (*str != 0)
+  {
+    hash = (*str) ^ ((hash << 31) | (hash >> 1));
+    str ++;
+  }
+
+  return hash % size;
+}
+//---------------------------------------------------------------------------*/
+/* binary optimized own function */
+int hashFunction10 (char *str, int size)
+{
+  unsigned int hash;
+
+  __asm__ ("xor %%eax, %%eax         \n" \
+           "hash10_circle_start:     \n" \
+           "ror  $1, %%eax           \n" \
+           "xor (%%ebx), %%al        \n" \
+           "inc  %%ebx               \n" \
+           "cmpb $0, (%%ebx)         \n" \
+           "jnz  hash10_circle_start \n" \
+          :"=a"(hash)                    \
+          :"a" (hash), "b"(str)          \
+          );
+
+  return hash % size;
+}
+//---------------------------------------------------------------------------*/
+//               © Gorbachev Nikita, November 2018 - April 2019              //
+//---------------------------------------------------------------------------*/
