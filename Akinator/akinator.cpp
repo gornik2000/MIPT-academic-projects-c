@@ -36,7 +36,7 @@ char akinator (const char *dataFileName)
           "\tYes - No - Extra\n");
   speak  ("Would you like to play with me?");
 
-  char  mod[MAX_FILE_STR_LINE] = {};
+  char  mode[MAX_FILE_STR_LINE] = {};
   gets (mode);
 
   if (*mode == '0')
