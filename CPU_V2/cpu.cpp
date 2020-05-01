@@ -3,7 +3,7 @@ typedef elem_cpu data_cpu;
 /* typedef for stack */
 typedef data_cpu data_t;
 
-#include "C:\Users\Lenovo\Documents\GitHub\safe-morning\Stack\Stack.cpp"
+#include "..\Stack\Stack.cpp"
 
 const int RAM_MEMORY_SIZE = 8192;
 

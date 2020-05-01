@@ -28,22 +28,22 @@ int main ()
                    "3 for implementation \n");
   scanf ("%d", &mode);
 
-//  switch (mode)
+  switch (mode)
   {
-//  case 1:
+  case 1:
     compilation        (CMD_FILE_NAME,      BYTECODE_FILE_NAME);
-//    break;
+    break;
 
-//  case 2:
+  case 2:
     inverseCompilation (BYTECODE_FILE_NAME, IN_COMP_FILE_NAME);
-//    break;
+    break;
 
-//  case 3:
+  case 3:
     implementation     (BYTECODE_FILE_NAME);
-//    break;
+    break;
 
-//  default:
+  default:
     printf (" # Incorrect inputed number \n");
-//    break;
+    break;
   }
 }
