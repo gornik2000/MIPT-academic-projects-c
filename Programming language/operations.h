@@ -34,8 +34,7 @@ DEF_DIFF ("=",        1,  OP, 10, 1,
               subTreeToAsm (n->child[1], f);
             }
 
-            fprintf (f, "pop +%.0lf\n", n->child[0]->key->value);
-            fprintf (f, "mya\n");
+            fprintf (f, "pop +%.0f\n", n->child[0]->key->value);
           })
 
 DEF_DIFF ("if",       2,  OP, 10, 3,

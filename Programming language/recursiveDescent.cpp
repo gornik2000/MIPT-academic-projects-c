@@ -457,7 +457,7 @@ node *getN (void)
   {
     s++;
   }
-  printf ("---->GOT %lf getN <----\n", atof(number));
+  printf ("---->GOT %f getN <----\n", atof(number));
 
   return nodeCreate (pdataCreate (CNST, 255, atof (number)),
                      NULL,

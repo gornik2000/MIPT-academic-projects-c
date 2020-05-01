@@ -2,7 +2,9 @@ push 1
 pop r0
 push in
 pop +0
-mya
+push 23.000000
+out
+pop
 push +0
 call :fn_factorial
 out
@@ -20,10 +22,8 @@ pop r0
 pop +0
 push 1.000000
 pop +1
-mya
 push 1.000000
 pop +2
-mya
 :start_0
 
 push 0
@@ -35,12 +35,10 @@ push +1
 push 1.000000
 add
 pop +1
-mya
 push +2
 push +1
 mul
 pop +2
-mya
 jmp :start_0
 :end_0
 

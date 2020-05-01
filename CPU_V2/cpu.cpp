@@ -34,7 +34,6 @@ void cpu_##name(cpu_t *cpu, int *ipCmd, int *ipPar, char *cmdBuf, data_cpu *parB
 #undef CPU_DEF_CMD
 
 //=============================================================================
-
 void implementation (const char *byteCodeFileName)
 {
   assert (byteCodeFileName);
@@ -53,6 +52,7 @@ void implementation (const char *byteCodeFileName)
   /* reading parameters */
   data_cpu    *parBuf = (data_cpu *)calloc (statBuf[ASM_STAT_PAR_NUM], sizeof (*parBuf));
   fread (parBuf, sizeof (data_cpu), statBuf[ASM_STAT_PAR_NUM], byteCodeFile);
+  fclose (byteCodeFile);
 
   int ipPar = 0;
   int ipCmd = 0;

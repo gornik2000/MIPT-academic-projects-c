@@ -6,7 +6,7 @@
 #include <math.h>
 #include <windows.h>
 #include "fileIO.cpp"
-#include "CPU_V2/cpuMain.cpp"
+#include "../CPU_V2/cpuMain.cpp"
 //-----------------------------------------------------------------------------
 struct myFunction
 {
@@ -208,7 +208,7 @@ char subTreeToAsm (node *n, FILE *f)
 
   if (n->key->type == CNST)
   {
-    fprintf (f, "push %lf\n", n->key->value);
+    fprintf (f, "push %f\n", n->key->value);
   }
 
   if (n->key->type == FUN)

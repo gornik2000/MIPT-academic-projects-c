@@ -1,6 +1,6 @@
-typedef double elem_cpu;
+typedef int elem_cpu;
 
-#define ELEM_CPU_PRINT "%lf"
+#define ELEM_CPU_PRINT "%d"
 
 #include <math.h>
 #include "constants.cpp"
@@ -8,9 +8,9 @@ typedef double elem_cpu;
 #include "disasm.cpp"
 #include "cpu.cpp"
 
-#define taskFact
-#ifdef  taskFact
-  const char *CMD_FILE_NAME     = "Factorial.txt";
+//#define taskTest
+#ifdef  taskTest
+  const char *CMD_FILE_NAME     = "Test.txt";
 #else
   const char *CMD_FILE_NAME       = "SolveQuadratic.txt";
 #endif

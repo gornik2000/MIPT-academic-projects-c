@@ -181,6 +181,7 @@ char getType (char *cmd)
     case 'r': return type_reg;
     case ':': return type_lbl;
     case 'i': return type_inp;
+    case '+': return type_dram;
     default : return type_val;
   }
 }
@@ -191,6 +192,9 @@ data_asm getVal (char *cmd,       char type,
 {
   switch (type)
   {
+    case type_dram:
+      return atof (cmd + 1);
+
     case type_ram:
       return atof (cmd + 1);
 

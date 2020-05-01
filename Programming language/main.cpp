@@ -4,8 +4,8 @@
 int main ()
 {
   //const char*    fileCodeName = "factorial.txt";
-  //const char*    fileCodeName = "quadratic.txt";
-  const char*    fileCodeName = "code.txt";
+  const char*    fileCodeName = "quadratic.txt";
+  //const char*    fileCodeName = "code.txt";
   const char* fileAsmName  = "myasm.txt";
 
   printf (" # Language 1.50\n"
