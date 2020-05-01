@@ -1,0 +1,11 @@
+ # Compiler 3.00
+ # This program compiles programs from one of the available
+ # programming language to one of the available assemblers
+ # use Makefile (for example mingw32-make) and then open Compiler.exe
+ # Available extensions :
+ # input     output  
+ # .ng       .com    
+ # .cb       .s
+ #           .asm
+ # you can also find examples of both input languages: code.ng and fact.cb
+ # also during compilation a.tree file is created (standardized pgm tree)

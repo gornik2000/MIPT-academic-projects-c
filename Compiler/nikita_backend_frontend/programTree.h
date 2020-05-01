@@ -1,4 +1,7 @@
 //---------------------------------------------------------------------------*/
+#ifndef PGM_TREE
+#define PGM_TREE
+//---------------------------------------------------------------------------*/
 #include "function.h"
 //---------------------------------------------------------------------------*/
 #define DEF_TYPE(name, num) name = num,
@@ -7,6 +10,10 @@ enum node_types
   #include "types.h"
 };
 #undef DEF_TYPE
+//---------------------------------------------------------------------------*/
+#define DEF_OP(name, code, tp, arg, var, funD) const char var##_CODE = code;
+#include "operations.h"
+#undef  DEF_OP
 //---------------------------------------------------------------------------*/
 /* type of pgm_data value */
 typedef int p_data_value;
@@ -19,15 +26,14 @@ struct prm_data
 typedef struct prm_data p_data;
 typedef p_data tree_data;
 
-#include "tree.cpp"
+#include "tree.h"
 
 p_data *pdataCtor   (void);
 p_data *pdataDtor   (p_data *d);
-p_data *pdataCreate (char type, char priority, p_data_value value);
+p_data *pdataCreate (char type, p_data_value value);
 
 char treeToFile    (tree *t, const char *fileName);
 char subTreeToFile (node *n, FILE *file, int deepness);
-
 //---------------------------------------------------------------------------*/
 p_data *pdataCtor (void)
 {
@@ -69,8 +75,10 @@ char treeToFile (tree *t, const char *fileName)
 
   FILE *file = fopen (fileName, "w");
 
-  printf (" TREE TO FILE START\n");
+  //printf (" TREE TO FILE START\n");
   subTreeToFile (t->rootNode, file, 0);
+
+  return 0;
 }
 //---------------------------------------------------------------------------*/
 #define DEF_TYPE(name, num)                                                   \
@@ -80,7 +88,7 @@ char treeToFile (tree *t, const char *fileName)
     fprintf (file, "%s ", #name);                                             \
   }                                                                           \
 }
-#define DEF_OP(name, num, tp, arg, funD)                                      \
+#define DEF_OP(name, num, tp, arg, var, funD)                                 \
 {                                                                             \
   if (n->key->type == tp && n->key->value == num)                             \
   {                                                                           \
@@ -102,13 +110,15 @@ char subTreeToFile (node *n, FILE *file, int deepness)
 
   for (int i = 0; n->child[i] != NULL; i++)
   {
-    //printf ("child %d\n", i);
-
     subTreeToFile (n->child[i], file, deepness + 1);
   }
+
+  return 0;
 }
 #undef DEF_OP
 #undef DEF_TYPE
+//---------------------------------------------------------------------------*/
+#endif
 //---------------------------------------------------------------------------*/
 //               © Gorbachev Nikita, December 2018 + April 2019              //
 //---------------------------------------------------------------------------*/

@@ -20,14 +20,15 @@ const int   MAX_COMMAND_LENGTH    = 30;
 const char *TREE_STRING_FOR_INPUT = NULL;
 const char  MAX_FUN_NUMBER        = 100;
 const char  MAX_VAR_NUMBER        = 10;
-
+//---------------------------------------------------------------------------*/
 cmd_fun *funArr[MAX_FUN_NUMBER] = {0};
 
 char funNumber = 0;
 int    curLine = 1;
 int    curTabs = 0;
+//---------------------------------------------------------------------------*/
 #define s TREE_STRING_FOR_INPUT
-
+//---------------------------------------------------------------------------*/
 tree *getTreeFromCode (const char *str);
 node *getDef     (void);            // def function
 node *getLine    (char **varNames); // code line
@@ -47,18 +48,24 @@ char getTab      (void);
 char checkTabs   (void);
 char *getName    (void);            // function name
 
+char skipSpace   (void);
+char skipComment (void);
+
 char isSubStringIn (const char *str1, const char *str2);
 int  getVarCount   (char **varNames, const char *str, int varNum);
+
+char isSep  (const char c);
+
+char treeToStdFile    (tree *t, const char *fileName);
+char subTreeToStdFile (node *n, FILE *file, int deepness);
 //---------------------------------------------------------------------------*/
 tree *getTreeFromCode (const char *str)
 {
   assert (str != NULL);
 
-  printf ("\n # starting descent \n");
-
-  s       = str;
-  tree *t = treeCtor ();
-
+  //printf ("\n # starting descent \n");
+  s              = str;
+  tree *t        = treeCtor ();
   char *varNames[MAX_VAR_NUMBER] = {0};
 
   if (*s == '\0')
@@ -75,6 +82,7 @@ tree *getTreeFromCode (const char *str)
   while (isSubStringIn (s, "def"))
   {
     t->rootNode->child[i] = getDef ();
+
     i++;
   }
 
@@ -92,17 +100,24 @@ tree *getTreeFromCode (const char *str)
   return t;
 }
 //---------------------------------------------------------------------------*/
-node *getLine (char **varNames)
+node *getLine    (char **varNames)
 {
   assert (varNames != NULL);
 
   curTabs = getTab ();
+
   node *n = getA (varNames);
 
-  if (*s != '\n' && *s != '\0') return n;
+  skipSpace   ();
+  skipComment ();
 
+  if (*s != '\n' && *s != '\0')
+  {
+    return n;
+  }
   s++;
-  curLine++;
+
+  curLine ++;
 
   return n;
 }
@@ -117,8 +132,8 @@ node *getDef  (void)
   funArr[funNumber]       = funCtor ();
   funArr[funNumber]->name = getName ();
 
-  node *n = nodeCtor ();
-  n->key  = pdataCreate (FUN, funNumber);
+  node *n = nodeCtor    ();
+  n->key  = pdataCreate (FUND, funNumber);
 
   if (*s != '(')
   {
@@ -144,7 +159,8 @@ node *getDef  (void)
     return n;
   }
   s++;
-
+  skipSpace   ();
+  skipComment ();
   curLine++;
   if (*s != '\n' && *s != '\0')
   {
@@ -157,17 +173,14 @@ node *getDef  (void)
   funArr[funNumber]->varNum = getVarCount (varNames, s, vNum);
   funNumber ++;
 
-  while (*s == '\t')
-  {
-    *s ++;
-  }
+  while (*s == '\t') *s ++;
 
   int i    = 0;
   int skip = 0;
   while (skip == 0)
   {
     n->child[i] = getLine (varNames);
-    if (n->child[i]->key->value == 10)
+    if (n->child[i]->key->value == RETURN_CODE)
     {
       skip = 1;
     }
@@ -206,7 +219,7 @@ node *getA (char **varNames)
 
   if (*s == '=')
   {
-    int op = 1; // "=" value
+    int op = ASSIGN_CODE; // "=" value
 
     s++;
     if (*s == ' ')
@@ -234,13 +247,13 @@ node *getC (char **varNames)
       isSubStringIn (s, "==") || isSubStringIn (s, "!="))
   {
     int op = 0;
-    if (isSubStringIn(s, "<=")) op = 14;
-    if (isSubStringIn(s, ">=")) op = 15;
-    if (isSubStringIn(s, "==")) op = 13;
-    if (isSubStringIn(s, "!=")) op = 32;
+    if (isSubStringIn(s, "<=")) op =    EQ_LESS_CODE;
+    if (isSubStringIn(s, ">=")) op = EQ_GREATER_CODE;
+    if (isSubStringIn(s, "==")) op =      EQUAL_CODE;
+    if (isSubStringIn(s, "!=")) op =  NOT_EQUAL_CODE;
 
-    printf (" GOT OP %d", op);
-    s += 2;
+    s++;
+    s++;
     if (*s == ' ') s++;
 
     node *nRight = getP (varNames);
@@ -252,14 +265,11 @@ node *getC (char **varNames)
   else if (*s == '<' || *s == '>')
   {
     int op = 0;
-    if (*s == '<') op = 11;
-    if (*s == '>') op = 12;
+    if (*s == '<') op = LESS_CODE;
+    if (*s == '>') op = GREATER_CODE;
 
     s ++;
-    if (*s == ' ')
-    {
-      s++;
-    }
+    if (*s == ' ') s++;
 
     node *nRight = getP (varNames);
     nLeft = nodeCreate (pdataCreate (OP, op),
@@ -280,14 +290,11 @@ node *getE (char **varNames)
   while (*s == '+' || *s == '-')
   {
     int op = 0;
-    if (*s == '+') op = 30;
-    if (*s == '-') op = 31;
+    if (*s == '+') op = ADD_CODE;
+    if (*s == '-') op = SUB_CODE;
 
     s++;
-    if (*s == ' ')
-    {
-      s++;
-    }
+    if (*s == ' ') s++;
 
     node *nRight = getT (varNames);
     nLeft = nodeCreate (pdataCreate (OP, op),
@@ -308,15 +315,12 @@ node *getT (char **varNames)
   while (*s == '*' || *s == '/' || *s == '%')
   {
     int op = 0;
-    if (*s == '*') op = 34;
-    if (*s == '/') op = 35;
-    if (*s == '%') op = 36;
+    if (*s == '*') op = MUL_CODE;
+    if (*s == '/') op = DIV_CODE;
+    if (*s == '%') op = MOD_CODE;
 
     s++;
-    if (*s == ' ')
-    {
-      s++;
-    }
+    if (*s == ' ') s++;
 
     node *nRight = getD (varNames);
     nLeft = nodeCreate (pdataCreate (OP, op),
@@ -336,13 +340,10 @@ node *getD (char **varNames)
 
   while (*s == '^')
   {
-    int op = 33;
+    int op = PWR_CODE;
 
     s++;
-    if (*s == ' ')
-    {
-      s++;
-    }
+    if (*s == ' ') s++;
 
     node *nRight = getP (varNames);
     nLeft = nodeCreate (pdataCreate (OP, op),
@@ -371,11 +372,12 @@ node *getP (char **varNames)
     s++;
     return n;
   }
+  if (isdigit (*(s)))
+  {
+    return getN ();
+  }
 
-  if (isdigit (*(s))) return getN ();
   return getS (varNames);
-
-  printf (" # ERROR. Got not digit and not alpha\n");
 }
 //---------------------------------------------------------------------------*/
 node *getN (void)
@@ -398,7 +400,7 @@ node *getN (void)
                     );
 }
 //---------------------------------------------------------------------------*/
-#define DEF_OP(name, code, tp, arg, funD)                                     \
+#define DEF_OP(name, code, tp, arg, var, funD)                                \
 {                                                                             \
   if (strcmp (name, buf) == 0)                                                \
   {                                                                           \
@@ -427,20 +429,20 @@ node *getN (void)
         {                                                                     \
             printf (" # ERROR No : in line %d got \"%c\"\n", curLine, *s);    \
         }                                                                     \
-        s += 2;                                                               \
+        s++;                                                                  \
+        skipSpace   ();                                                       \
+        /*skipComment ();*/                                                   \
+        s++;                                                                  \
         curLine++;                                                            \
                                                                               \
         int startTabs = curTabs;                                              \
-        printf ("TABS %d\n", startTabs);                                      \
         int i = 1;                                                            \
         int skip = 0;                                                         \
         while (checkTabs() - 1 == startTabs)                                  \
         {                                                                     \
-          printf (" CIRCLE SKIP\n");                                          \
           n->child[i] = getLine (varNames);                                   \
           i++;                                                                \
         }                                                                     \
-        printf (" CHILISH %d ---- \n", i);                                    \
         n->childrenNum = i;                                                   \
         return n;                                                             \
       }                                                                       \
@@ -466,7 +468,7 @@ node *getS (char **varNames)
   int i = 0;
 
   char *buf = getName ();
-  if (*s == ' ') s++;
+  skipSpace  ();
 
   // op check
   #include "operations.h"
@@ -476,7 +478,6 @@ node *getS (char **varNames)
   {
     if (strcmp (funArr[i]->name, buf) == 0)
     {
-      printf (" fun found %s\n", buf);
       /* different number of vars */
       node *n = nodeCtor ();
       n->key  = pdataCreate (FUN, i);
@@ -528,7 +529,27 @@ node *getS (char **varNames)
 }
 #undef DEF_OP
 //---------------------------------------------------------------------------*/
-#define DEF_OP(name, val, tp, arg, fun)                                       \
+/* starts with space */
+char skipSpace   (void)
+{
+  while (*s == ' ') s++;
+
+  return 0;
+}
+//---------------------------------------------------------------------------*/
+/* starts from comment, ends with \n or \0 */
+char skipComment (void)
+{
+  if (*s == '#')
+  {
+    while (*s != '\n' && *s != '\0') s++;
+    return 1;
+  }
+
+  return 0;
+}
+//---------------------------------------------------------------------------*/
+#define DEF_OP(name, val, tp, arg, var, fun)                                  \
 {                                                                             \
   if (strcmp(command, name) == 0)                                             \
   {                                                                           \
@@ -540,8 +561,6 @@ int getVarCount (char **varNames, const char *str, int varNum)
   assert (varNames != NULL);
   assert (str      != NULL);
 
-  printf (" GET COUNT STARTED\n");
-
   for (;*str == '\t'; str++);
   char *command = (char *)calloc (MAX_COMMAND_LENGTH, sizeof (*command));
   for (int i = 0; !isSep (*str); i++)
@@ -552,7 +571,6 @@ int getVarCount (char **varNames, const char *str, int varNum)
 
   while (strcmp (command, "return") != 0)
   {
-    printf (" # try command %s\n", command);
     // op check
     #include "operations.h"
     // function check
@@ -572,7 +590,6 @@ int getVarCount (char **varNames, const char *str, int varNum)
       }
     }
 
-    printf (" ! not found command %s\n", command);
     varNames[varNum] = command;
     varNum++;
 
@@ -605,15 +622,16 @@ char getTab (void)
     s++;
     i++;
   }
-
   return i;
 }
 //---------------------------------------------------------------------------*/
 char checkTabs (void)
 {
   int i = 0;
-  while (s[i] == '\t') i++;
-
+  while (s[i] == '\t')
+  {
+    i++;
+  }
   return i;
 }
 //---------------------------------------------------------------------------*/
@@ -629,6 +647,107 @@ char isSubStringIn (const char *str1, const char *str2)
 
   return 1;
 }
+//---------------------------------------------------------------------------*/
+char isSep (const char c)
+{
+  /* can be done better */
+  switch (c)
+  {
+    case ' ' :
+    case '(' :
+    case ')' :
+    case '\n':
+    case '\0':
+    case ':' :
+    case '\t':
+    case ',' :
+    case ';' :
+    case '[' :
+    case ']' :
+      return 1;
+    default:
+      return 0;
+  }
+}
+//---------------------------------------------------------------------------*/
+#define DEF_OP(std, val)                                                      \
+{                                                                             \
+  if (val == MAIN_CODE)                                                       \
+  {                                                                           \
+    fprintf (file, "\t%d %d\n", OP, std);                                     \
+  }                                                                           \
+}
+char treeToStdFile (tree *t, const char *fileName)
+{
+  assert (t        != NULL);
+  assert (fileName != NULL);
+
+  FILE *file = fopen (fileName, "w");
+
+  for (int i = 0; i < funNumber; i ++)
+  {
+    subTreeToStdFile (t->rootNode->child[i], file, 0);
+  }
+
+  /* for compatibility */
+  fprintf (file, "(\n");
+  #include "stdOperations.h"
+  for (int i = funNumber; i < t->rootNode->childrenNum; i++)
+  {
+    subTreeToStdFile (t->rootNode->child[i], file, 1);
+  }
+  fprintf (file, ")\n");
+
+  return 0;
+}
+#undef DEF_OP
+//---------------------------------------------------------------------------*/
+#define DEF_OP(std, val)                                                      \
+{                                                                             \
+  if (n->key->value == val)                                                   \
+  {                                                                           \
+    fprintf (file, "%d\n", std);                                              \
+  }                                                                           \
+}
+char subTreeToStdFile (node *n, FILE *file, int deepness)
+{
+  assert (n    != NULL);
+  assert (file != NULL);
+
+  /* data out */
+  tabFprint (file, deepness);
+  fprintf (file, "(\n");
+
+  tabFprint (file, deepness + 1);
+  fprintf (file, "%d ", n->key->type);
+  if (n->key->type != OP)
+  {
+    fprintf (file, "%d\n", n->key->value);
+  }
+  else
+  {
+    #include "stdOperations.h"
+  }
+
+  /* for compatibility argnum */
+  if ((n->key->type) == FUND)
+  {
+    fprintf (file, "\t(\n");
+    fprintf (file, "\t\t%d %d\n", CNST, funArr[n->key->value]->argNum);
+    fprintf (file, "\t)\n");
+  }
+
+  /* child out */
+  for (int i = 0; n->child[i] != NULL; i++)
+  {
+    subTreeToStdFile (n->child[i], file, deepness + 1);
+  }
+  tabFprint (file, deepness);
+  fprintf (file, ")\n");
+
+  return 0;
+}
+#undef DEF_OP
 //---------------------------------------------------------------------------*/
 #undef s
 //---------------------------------------------------------------------------*/

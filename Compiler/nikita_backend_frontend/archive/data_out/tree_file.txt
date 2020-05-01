@@ -1,5 +1,5 @@
 PGM 0
-	FUN 0
+	FUND 0
 		OP = 1
 			VAR 1
 			CNST 1
@@ -17,7 +17,7 @@ PGM 0
 							CNST 1
 		OP return 10
 			VAR 1
-	FUN 1
+	FUND 1
 		OP = 1
 			VAR 1
 			CNST 1
@@ -36,15 +36,15 @@ PGM 0
 				FUN 1
 					OP - 31
 						VAR 0
-						CNST phi 2
+						CNST 2
 			OP = 1
 				VAR 1
 				OP + 30
 					VAR 2
 					VAR 3
 		OP return 10
-			VAR 1
-	FUN 2
+			CNST 0
+	FUND 2
 		OP putc 44
 			CNST 140
 		OP putc 44
@@ -55,7 +55,7 @@ PGM 0
 			CNST 10
 		OP return 10
 			CNST 0
-	FUN 3
+	FUND 3
 		OP print 43
 			OP get_h 45
 		OP print 43
@@ -77,6 +77,7 @@ PGM 0
 		OP = 1
 			VAR 0
 			OP input 42
+	FUN 2
 	OP = 1
 		VAR 1
 		OP input 42

@@ -22,6 +22,8 @@ typedef struct my_node node;
 //---------------------------------------------------------------------------*/
 node *nodeCtor (void);
 node *nodeDtor (node *n);
+
+node *nodeCreate (p_data *key, node *leftChild, node *rightChild);
 //---------------------------------------------------------------------------*/
 node *nodeCtor (void)
 {
@@ -57,6 +59,17 @@ node *nodeDtor (node *n)
   return n;
 }
 //---------------------------------------------------------------------------*/
+node *nodeCreate (p_data *key, node *leftChild, node *rightChild)
+{
+  node *n = nodeCtor ();
+
+  n->child[0] = leftChild;
+  n->child[1] = rightChild;
+  n->key      = key;
+
+  return n;
+}
+//---------------------------------------------------------------------------*/
 struct my_tree
 {
   node *rootNode;
@@ -76,6 +89,8 @@ tree *treeCtor (void)
 
   t->edgeCount = 1;
   t->rootNode  = nodeCtor();
+
+  return t;
 }
 //---------------------------------------------------------------------------*/
 node *treeSubDtor  (node *n)

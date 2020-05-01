@@ -6,7 +6,7 @@
 #include <math.h>
 #include <windows.h>
 //---------------------------------------------------------------------------*/
-#include "fileIO.cpp"
+#include "fileIO.h"
 //---------------------------------------------------------------------------*/
 #define DEF_BC(name, len, ...) const unsigned char name##_CODE[] = {__VA_ARGS__};
 #include "bytecode.h"
@@ -25,7 +25,6 @@ const int  BLOCK_SIZE       = 256;
 char  programCompilation (const char *fileInName);
 char *codeRefactoring    (const char *incode, char *outcode);
 
-char *getCmd (char *str, char *cmd);
 char  isSep  (const char c);
 
 unsigned char * putInBuf (unsigned char *buf, const unsigned char *str, char num);
@@ -41,28 +40,32 @@ char programCompilation (const char *fileInName)
   FILE *pgmFile = fopen (fileInName, "r");
   int countSize = fileSize (pgmFile);
 
+  /* open code file */
   char *pgmAllCode = (char *)calloc (countSize, sizeof (*pgmAllCode));
   int   pgmSize    = fread (pgmAllCode, sizeof (char), countSize, pgmFile);
   printf (" # data before refactoring: \n %s \n", pgmAllCode);
   fclose (pgmFile);
 
+  /* code refactoring */
   char *pgmCode = (char *)calloc (countSize, sizeof (*pgmCode));
   pgmCode++;
   codeRefactoring (pgmAllCode, pgmCode);
   printf (" # data after refactoring: \n %s \n", pgmCode);
 
+  /* write refactored code for debugging */
   FILE   *treeFile = fopen ("data_out/refactored.txt", "w");
   fwrite (pgmCode, sizeof (char), countSize, treeFile);
   fclose (treeFile);
   free   (pgmAllCode);
-  /* we need pgmSize because it does not content \r\n, only \n */
 
+  /* code to tree + write it for debugging */
   tree *pgmTree = getTreeFromCode (pgmCode);
   pgmCode--;
   treeToFile (pgmTree, "data_out/tree_file.txt");
 
   printf (" # tree was built\n");
 
+  /* tree to byte code buffer */
   unsigned char *byteCode = (unsigned char *)calloc (MAX_ASMCODE_SIZE, sizeof (*byteCode));
   unsigned char *endBuf   = treeToBuf (pgmTree, byteCode);
   FILE          *outFile  = fopen ("S:/Doc/a.com", "wb");
@@ -106,7 +109,7 @@ unsigned char *treeToBuf (const tree *t, unsigned  char *buf)
 
     $(PUSH_BP);
     $(R16_MOV); $(BP_SP);
-    $(ADD_BP ); c(4);
+    $(ADD_BP ); c(4    );
     for (int j = 0; j < t->rootNode->child[i]->childrenNum; j++)
     {
       buf = nodeToBuf (t->rootNode->child[i]->child[j], buf);
@@ -130,7 +133,7 @@ unsigned char *treeToBuf (const tree *t, unsigned  char *buf)
   return buf;
 }
 //---------------------------------------------------------------------------*/
-#define DEF_OP(name, code, tp, arg, funD)                                     \
+#define DEF_OP(name, code, tp, arg, var, funD)                                \
 {                                                                             \
   if ((code == n->key->value) && (tp == n->key->type))                        \
   {                                                                           \
@@ -183,7 +186,7 @@ char *codeRefactoring (const char *incode, char *outcode)
   assert ( incode != NULL);
   assert (outcode != NULL);
 
-  printf (" # Code Refactoring\n");
+  //printf (" # Code Refactoring\n");
   char *start = outcode;
 
   while (*incode != '\0')
@@ -210,7 +213,17 @@ char *codeRefactoring (const char *incode, char *outcode)
   return outcode;
 }
 //---------------------------------------------------------------------------*/
-node *nodeCreate (p_data *key, node *leftChild, node *rightChild)
+unsigned char *putInBuf (unsigned char *buf, const unsigned char *str, char num)
+{
+  for (int i = 0; i < num; i++, str++, buf++)
+  {
+    *buf = *str;
+  }
+
+  return buf;
+}
+//---------------------------------------------------------------------------*/
+/*node *nodeCreate (p_data *key, node *leftChild, node *rightChild)
 {
   node *n = nodeCtor ();
 
@@ -221,7 +234,7 @@ node *nodeCreate (p_data *key, node *leftChild, node *rightChild)
   return n;
 }
 //---------------------------------------------------------------------------*/
-char isSep (const char c)
+/*char isSep (const char c)
 {
   if (c == ' ' ) return 1;
   if (c == '(' ) return 1;
@@ -236,32 +249,6 @@ char isSep (const char c)
   if (c == ']' ) return 1;
 
   return 0;
-}
-//---------------------------------------------------------------------------*/
-unsigned char *putInBuf (unsigned char *buf, const unsigned char *str, char num)
-{
-  for (int i = 0; i < num; i++, str++, buf++)
-  {
-    *buf = *str;
-  }
-
-  return buf;
-}
-//---------------------------------------------------------------------------*/
-/*char *createFileName (const char *name)
-{
-  //int length     = strlen (name) - strlen (EXPENSION_CODE);
-  char *fileName = (char *)calloc (1, sizeof (*fileName));
-
-  for (; *name != '.'; name++, fileName++)
-  {
-    *fileName = *name;
-  }
-  for (int i = 0; *name != '\0'; name++, i++)
-  {
-    if (*name != *fileName)
-  }
-  return fileName;
 }
 //---------------------------------------------------------------------------*/
 //               © Gorbachev Nikita, December 2018 + April 2019              //

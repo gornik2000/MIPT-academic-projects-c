@@ -159,9 +159,10 @@ DEF_OP ("^",        33, OP, 1,
          $(POP_CX );
          $(DEC_BX );
          $(R16_MOV); $(AX_CX);
+         unsigned char *startPos = buf;
          $(MUL_CL );
          $(DEC_BX );
-         $(JNE    );
+         $(JNE    ); buf--; c(256 - (buf - startPos));
          $(PUSH_AX);
          //$(POWER);
        })
