@@ -46,7 +46,7 @@ int main ()
           " # file NAMEIN and put the sorted lines into file NAMEOUT\n");
 
   printf (" # Press any button if you want to start\n");
-  //char startProgram = getchar();
+  char startProgram = getchar();
 
   /* creates text parameters */
   int tSize = 0;
