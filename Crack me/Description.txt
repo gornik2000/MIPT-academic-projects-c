@@ -1,0 +1,20 @@
+Solution principle:
+1) Dissembling (e.g. with IDA Freeware)
+2) Find that the success message is called in the sub_40134D function and the failure 
+	message is called in sub_401362 and sub_40137E.
+3) We find that sub_40134D is in WinProc, before that two functions are called and the 
+	results are compared, and after that there is a success/failback output (loc_4011E6)
+4) Сonsider called functions sub_4013D8 and sub_40137E
+5) sub_4013D8:
+	receives the code as a string, 
+	converts it to a number and produces xor 1234h, 
+	the answer returns in ebx
+6) sub_40137E:
+	receives the login as a string (up to 10 letters),
+	counts the sum of all letters, and if it meets a character less than A, 
+	it immediately fails, but if the character is greater than Z, 
+	it subtracts another 20h (as if it is uppercase), 
+	above the received sum is xor 5678h and the result is displayed in eax.
+7) => to generate a key you need to calculate the sum of letters in the 
+	login according to the specified rule, and then produce xor 1234h xor 5678h.
+8) Thus the login is valid if its length is less than 10 and there is no symbol up to A in it.
