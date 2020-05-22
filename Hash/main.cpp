@@ -1,6 +1,6 @@
 //---------------------------------------------------------------------------*/
-const char *FILE_DATA_NAME = "data_in/improved_data.txt";
-//const char *FILE_DATA_NAME = "data_in/data.txt";
+//const char *FILE_DATA_NAME = "data_in/improved_data.txt";
+const char *FILE_DATA_NAME = "data_in/data.txt";
 const char *FILE_STAT_NAME = "data_out/stat_data.txt";
 //---------------------------------------------------------------------------*/
 #include <stdio.h>
