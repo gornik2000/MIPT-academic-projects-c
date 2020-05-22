@@ -1,8 +1,8 @@
 //---------------------------------------------------------------------------*/
 //  -O0 -g -fno-omit-frame-pointer -gdwarf-2 -glevel
 //---------------------------------------------------------------------------*/
-const char *FILE_DATA_NAME = "data_in/improved_data.txt";
-//const char *FILE_DATA_NAME = "data_in/data.txt";
+//const char *FILE_DATA_NAME = "data_in/improved_data.txt";
+const char *FILE_DATA_NAME = "data_in/data.txt";
 const char *FILE_STAT_NAME = "data_out/stat_data.txt";
 //---------------------------------------------------------------------------*/
 #include <stdio.h>
@@ -29,7 +29,7 @@ int main ()
     return 0;
   }
 
-  map *m = mapCtor (hashFunction7);
+  map *m = mapCtor (hashFunction11);
 
   for (int i = 0; i < fileLines; i++)
   {

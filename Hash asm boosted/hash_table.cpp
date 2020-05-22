@@ -5,7 +5,7 @@
 const char *MAP_LOG_FILE_NAME =  "data_logs/map_logs.txt";
 FILE       *MAP_LOG_FILE      = fopen (MAP_LOG_FILE_NAME, "w");
 //---------------------------------------------------------------------------*/
-const int MAX_MAP_SIZE = 50000;
+const int MAX_MAP_SIZE = 500;
 
 struct my_map
 {
